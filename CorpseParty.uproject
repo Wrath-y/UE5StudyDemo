@@ -1,0 +1,23 @@
+{
+  "Category": "",
+  "Description": "",
+  "EngineAssociation": "5.0",
+  "FileVersion": 3,
+  "Modules": [
+    {
+      "AdditionalDependencies": [
+        "Engine",
+        "UMG"
+      ],
+      "LoadingPhase": "Default",
+      "Name": "CorpseParty",
+      "Type": "Runtime"
+    }
+  ],
+  "Plugins": [
+    {
+      "Enabled": true,
+      "Name": "OnlineSubsystemSteam"
+    }
+  ]
+}
