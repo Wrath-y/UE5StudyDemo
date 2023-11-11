@@ -36,6 +36,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	EWeaponState WeaponState;
+
+	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	class UWidgetComponent* PickupWidget;
 public:	
 
 
