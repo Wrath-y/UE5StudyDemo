@@ -24,6 +24,7 @@ class CORPSEPARTY_API AWeapon : public AActor
 public:	
 	AWeapon();
 	virtual void Tick(float DeltaTime) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void ShowPickupWidget(bool bShowWidget);
 protected:
 	virtual void BeginPlay() override;
@@ -47,7 +48,7 @@ protected:
 	);
 	
 private:
-	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
+	UPROPERTY(ReplicatedUsing=OnRep_WeaponState, VisibleAnywhere, Category = "Weapon Properties")
 	EWeaponState WeaponState;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
@@ -56,9 +57,13 @@ private:
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class USphereComponent* AreaSphere;
 
+	UFUNCTION()
+	void OnRep_WeaponState();
+	
 	UPROPERTY(VisibleAnywhere, Category = "Weapon Properties")
 	class UWidgetComponent* PickupWidget;
 
 public:
-	FORCEINLINE void SetWeaponState(EWeaponState State) {WeaponState = State;}
+	void SetWeaponState(EWeaponState State);
+	FORCEINLINE USphereComponent* GetAreaSphere() const {return AreaSphere;}
 };

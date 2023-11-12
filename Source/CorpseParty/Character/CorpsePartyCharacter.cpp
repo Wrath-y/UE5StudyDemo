@@ -109,7 +109,22 @@ void ACorpsePartyCharacter::LookUp(float Value)
 void ACorpsePartyCharacter::EquipButtonPressed()
 {
 	// Server 才会调用 EquipWeapon
-	if (Combat && HasAuthority())
+	if (Combat)
+	{
+		if (HasAuthority())
+		{
+			Combat->EquipWeapon(OverlappingWeapon);
+		}
+		else
+		{
+			ServerEquipButtonPressed();
+		}
+	}
+}
+
+void ACorpsePartyCharacter::ServerEquipButtonPressed_Implementation()
+{
+	if (Combat)
 	{
 		Combat->EquipWeapon(OverlappingWeapon);
 	}

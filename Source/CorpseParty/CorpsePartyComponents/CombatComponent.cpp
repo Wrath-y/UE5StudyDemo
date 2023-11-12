@@ -2,6 +2,8 @@
 
 
 #include "CombatComponent.h"
+
+#include "Components/SphereComponent.h"
 #include "CorpseParty/Character/CorpsePartyCharacter.h"
 #include "CorpseParty/Weapon/Weapon.h"
 #include "Engine/SkeletalMeshSocket.h"
@@ -37,6 +39,5 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 		UE_LOG(LogTemp, Warning, TEXT("RightHandSocket is not exists"))
 	}
 	EquippedWeapon->SetOwner(Character);
-	EquippedWeapon->ShowPickupWidget(false);
 }
 
