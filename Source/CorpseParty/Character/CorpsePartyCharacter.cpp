@@ -66,6 +66,8 @@ void ACorpsePartyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 
 	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ACorpsePartyCharacter::EquipButtonPressed);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ACorpsePartyCharacter::CrouchButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Pressed, this, &ACorpsePartyCharacter::AimButtonPressed);
+	PlayerInputComponent->BindAction("Aim", IE_Released, this, &ACorpsePartyCharacter::AimButtonReleased);
 }
 
 void ACorpsePartyCharacter::PostInitializeComponents()
@@ -145,6 +147,22 @@ void ACorpsePartyCharacter::CrouchButtonPressed()
 	}
 }
 
+void ACorpsePartyCharacter::AimButtonPressed()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(true);
+	}
+}
+
+void ACorpsePartyCharacter::AimButtonReleased()
+{
+	if (Combat)
+	{
+		Combat->SetAiming(false);
+	}
+}
+
 
 void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
@@ -180,4 +198,9 @@ void ACorpsePartyCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 bool ACorpsePartyCharacter::IsWeaponEquipped()
 {
 	return Combat && Combat->EquippedWeapon;
+}
+
+bool ACorpsePartyCharacter::IsAiming()
+{
+	return Combat && Combat->bAiming;
 }

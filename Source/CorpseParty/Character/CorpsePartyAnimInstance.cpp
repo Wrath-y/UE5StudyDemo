@@ -30,5 +30,6 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsAccelerating = CorpsePartyCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 	bWeaponEquipped = CorpsePartyCharacter->IsWeaponEquipped();
 	bIsCrouched = CorpsePartyCharacter->bIsCrouched;
+	bAiming = CorpsePartyCharacter->IsAiming();
 	
 }
