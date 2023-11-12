@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
+#include "CorpseParty/Weapon/Weapon.h"
+#include "Net/UnrealNetwork.h"
 
 ACorpsePartyCharacter::ACorpsePartyCharacter()
 {
@@ -27,9 +29,22 @@ ACorpsePartyCharacter::ACorpsePartyCharacter()
 	OverheadWidget->SetupAttachment(RootComponent);
 }
 
+void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	UE_LOG(LogTemp, Warning, TEXT("GetLifetimeReplicatedProps"))
+	DOREPLIFETIME_CONDITION(ACorpsePartyCharacter, OverlappingWeapon, COND_OwnerOnly);
+}
+
 void ACorpsePartyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ACorpsePartyCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 }
 
 void ACorpsePartyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -74,10 +89,33 @@ void ACorpsePartyCharacter::LookUp(float Value)
 	AddControllerPitchInput(Value);
 }
 
-void ACorpsePartyCharacter::Tick(float DeltaTime)
+void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
-	Super::Tick(DeltaTime);
+	UE_LOG(LogTemp, Warning, TEXT("SetOverlappingWeapon"))
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(false);
+	}
+	OverlappingWeapon = Weapon;
+	if (IsLocallyControlled())
+	{
+		if (OverlappingWeapon)
+		{
+			OverlappingWeapon->ShowPickupWidget(true);
+		}
+	}
 }
 
-
-
+void ACorpsePartyCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep_OverlappingWeapon"))
+	if (OverlappingWeapon)
+	{
+		OverlappingWeapon->ShowPickupWidget(true);
+	}
+	// 如果结束重叠，则PickupWidget将被设为false
+	if (LastWeapon)
+	{
+		LastWeapon->ShowPickupWidget(false);
+	}
+}

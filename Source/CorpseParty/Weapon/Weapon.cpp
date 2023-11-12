@@ -32,32 +32,51 @@ void AWeapon::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// On Server
 	if (HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("begin"))
+		UE_LOG(LogTemp, Warning, TEXT("Weapon AreaSphere Set Callback"))
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
+		AreaSphere->OnComponentEndOverlap.AddDynamic(this, &AWeapon::OnSphereEndOverlap);
 	}
 	
-	// if (!PickupWidget)
-	// {
-	// 	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
-	// 	PickupWidget->SetupAttachment(RootComponent);
-	// }
 	PickupWidget->SetVisibility(false);
-}
-
-void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(OtherActor);
-	if (CorpsePartyCharacter && PickupWidget)
-	{
-		PickupWidget->SetVisibility(true);
-	}
 }
 
 void AWeapon::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+}
+
+void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnSphereOverlap"))
+
+	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(OtherActor);
+	if (CorpsePartyCharacter)
+	{
+		CorpsePartyCharacter->SetOverlappingWeapon(this);
+	}
+}
+
+void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnSphereEndOverlap"))
+	
+	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(OtherActor);
+	if (CorpsePartyCharacter)
+	{
+		CorpsePartyCharacter->SetOverlappingWeapon(nullptr);
+	}
+}
+
+
+void AWeapon::ShowPickupWidget(bool bShowWidget)
+{
+	if (PickupWidget)
+	{
+		PickupWidget->SetVisibility(bShowWidget);
+	}
 }
