@@ -6,6 +6,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/WidgetComponent.h"
+#include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
 #include "CorpseParty/Weapon/Weapon.h"
 #include "Net/UnrealNetwork.h"
 
@@ -27,6 +28,9 @@ ACorpsePartyCharacter::ACorpsePartyCharacter()
 
 	OverheadWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("OverheadWidget"));
 	OverheadWidget->SetupAttachment(RootComponent);
+
+	Combat = CreateDefaultSubobject<UCombatComponent>(TEXT("CombatComponent"));
+	Combat->SetIsReplicated(true);
 }
 
 void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -57,7 +61,20 @@ void ACorpsePartyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAxis("MoveRight", this, &ACorpsePartyCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("Turn", this, &ACorpsePartyCharacter::Turn);
 	PlayerInputComponent->BindAxis("LookUp", this, &ACorpsePartyCharacter::LookUp);
+
+	PlayerInputComponent->BindAction("Equip", IE_Pressed, this, &ACorpsePartyCharacter::EquipButtonPressed);
 }
+
+void ACorpsePartyCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (Combat)
+	{
+		Combat->Character = this;
+	}
+}
+
 
 void ACorpsePartyCharacter::MoveForward(float Value)
 {
@@ -87,6 +104,15 @@ void ACorpsePartyCharacter::Turn(float Value)
 void ACorpsePartyCharacter::LookUp(float Value)
 {
 	AddControllerPitchInput(Value);
+}
+
+void ACorpsePartyCharacter::EquipButtonPressed()
+{
+	// Server 才会调用 EquipWeapon
+	if (Combat && HasAuthority())
+	{
+		Combat->EquipWeapon(OverlappingWeapon);
+	}
 }
 
 void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
