@@ -54,4 +54,5 @@ private:
 public:
 	// 与Weapon重叠时调用 只在server调用
 	void SetOverlappingWeapon(AWeapon* Weapon);
+	bool IsWeaponEquipped();
 };

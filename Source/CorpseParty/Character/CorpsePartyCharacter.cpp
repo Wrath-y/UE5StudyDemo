@@ -160,3 +160,8 @@ void ACorpsePartyCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 		LastWeapon->ShowPickupWidget(false);
 	}
 }
+
+bool ACorpsePartyCharacter::IsWeaponEquipped()
+{
+	return Combat && Combat->EquippedWeapon;
+}
