@@ -4,6 +4,7 @@
 #include "CorpsePartyAnimInstance.h"
 #include "CorpsePartyCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void UCorpsePartyAnimInstance::NativeInitializeAnimation()
 {
@@ -31,5 +32,16 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bWeaponEquipped = CorpsePartyCharacter->IsWeaponEquipped();
 	bIsCrouched = CorpsePartyCharacter->bIsCrouched;
 	bAiming = CorpsePartyCharacter->IsAiming();
-	
+
+	// 按照一个方向进行扫射
+	FRotator AimRotation = CorpsePartyCharacter->GetBaseAimRotation();
+	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(CorpsePartyCharacter->GetVelocity());
+	YawOffset = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+
+	CharacterRotationLastFrame = CharacterRotation;
+	CharacterRotation = CorpsePartyCharacter->GetActorRotation();
+	const FRotator Delta = UKismetMathLibrary::NormalizedDeltaRotator(CharacterRotation, CharacterRotationLastFrame);
+	const float Target = Delta.Yaw / DeltaTime;
+	const float Interp = FMath::FInterpTo(Lean, Target, DeltaTime, 6.f);
+	Lean = FMath::Clamp(Interp, -90.f, 90.f);
 }
