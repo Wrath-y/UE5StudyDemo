@@ -36,7 +36,9 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	// 按照一个方向进行扫射
 	FRotator AimRotation = CorpsePartyCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(CorpsePartyCharacter->GetVelocity());
-	YawOffset = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation).Yaw;
+	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
+	DeltaRotation = FMath::RInterpTo(DeltaRotation, DeltaRot, DeltaTime, 6.f);
+	YawOffset = DeltaRotation.Yaw;
 
 	CharacterRotationLastFrame = CharacterRotation;
 	CharacterRotation = CorpsePartyCharacter->GetActorRotation();
