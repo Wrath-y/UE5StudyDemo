@@ -33,7 +33,7 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsCrouched = CorpsePartyCharacter->bIsCrouched;
 	bAiming = CorpsePartyCharacter->IsAiming();
 
-	// 按照一个方向进行扫射
+	// Offset Yaw for Strafing
 	FRotator AimRotation = CorpsePartyCharacter->GetBaseAimRotation();
 	FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(CorpsePartyCharacter->GetVelocity());
 	FRotator DeltaRot = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation, AimRotation);
