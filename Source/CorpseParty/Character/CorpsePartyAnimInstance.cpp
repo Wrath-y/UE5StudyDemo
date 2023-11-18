@@ -34,6 +34,7 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	EquippedWeapon = CorpsePartyCharacter->GetEquippedWeapon();
 	bIsCrouched = CorpsePartyCharacter->bIsCrouched;
 	bAiming = CorpsePartyCharacter->IsAiming();
+	TurningInPlace = CorpsePartyCharacter->GetTurningInPlace();
 
 	// Offset Yaw for Strafing
 	FRotator AimRotation = CorpsePartyCharacter->GetBaseAimRotation();
