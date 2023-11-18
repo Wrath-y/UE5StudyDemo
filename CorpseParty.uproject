@@ -1,23 +1,23 @@
 {
-  "Category": "",
-  "Description": "",
-  "EngineAssociation": "5.0",
-  "FileVersion": 3,
-  "Modules": [
-    {
-      "AdditionalDependencies": [
-        "Engine",
-        "UMG"
-      ],
-      "LoadingPhase": "Default",
-      "Name": "CorpseParty",
-      "Type": "Runtime"
-    }
-  ],
-  "Plugins": [
-    {
-      "Enabled": true,
-      "Name": "OnlineSubsystemSteam"
-    }
-  ]
+	"FileVersion": 3,
+	"EngineAssociation": "5.3",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "CorpseParty",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"UMG"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Enabled": true,
+			"Name": "OnlineSubsystemSteam"
+		}
+	]
 }

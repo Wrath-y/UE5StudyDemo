@@ -242,3 +242,9 @@ bool ACorpsePartyCharacter::IsAiming()
 {
 	return Combat && Combat->bAiming;
 }
+
+AWeapon* ACorpsePartyCharacter::GetEquippedWeapon()
+{
+	if (Combat == nullptr) return nullptr;
+	return Combat->EquippedWeapon;
+}

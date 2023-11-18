@@ -3,6 +3,7 @@
 
 #include "CorpsePartyAnimInstance.h"
 #include "CorpsePartyCharacter.h"
+#include "CorpseParty/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -30,6 +31,7 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	bIsInAir = CorpsePartyCharacter->GetCharacterMovement()->IsFalling();
 	bIsAccelerating = CorpsePartyCharacter->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.f ? true : false;
 	bWeaponEquipped = CorpsePartyCharacter->IsWeaponEquipped();
+	EquippedWeapon = CorpsePartyCharacter->GetEquippedWeapon();
 	bIsCrouched = CorpsePartyCharacter->bIsCrouched;
 	bAiming = CorpsePartyCharacter->IsAiming();
 
@@ -49,4 +51,14 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 
 	AO_Yaw = CorpsePartyCharacter->GetAO_Yaw();
 	AO_Pitch = CorpsePartyCharacter->GetAO_Pitch();
+
+	if (bWeaponEquipped && EquippedWeapon && EquippedWeapon->GetWeaponMesh() && CorpsePartyCharacter->GetMesh())
+	{
+		LeftHandTransform = EquippedWeapon->GetWeaponMesh()->GetSocketTransform(FName("LeftHandSocket"), ERelativeTransformSpace::RTS_World);
+		FVector OutPosition;
+		FRotator OutRotation;
+		CorpsePartyCharacter->GetMesh()->TransformToBoneSpace(FName("hand_r"), LeftHandTransform.GetLocation(), FRotator::ZeroRotator, OutPosition, OutRotation);
+		LeftHandTransform.SetLocation(OutPosition);
+		LeftHandTransform.SetRotation(FQuat(OutRotation));
+	}
 }
