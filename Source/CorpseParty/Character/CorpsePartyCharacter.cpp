@@ -326,3 +326,9 @@ AWeapon* ACorpsePartyCharacter::GetEquippedWeapon()
 	if (Combat == nullptr) return nullptr;
 	return Combat->EquippedWeapon;
 }
+
+FVector ACorpsePartyCharacter::GetHitTarget() const
+{
+	if (Combat == nullptr) return FVector();
+	return Combat->HitTarget;
+}
