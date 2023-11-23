@@ -73,6 +73,12 @@ private:
 
 	UPROPERTY(EditAnywhere, Category=Combat)
 	class UAnimMontage* FireWeaponMontage;
+
+	void HideCameraIfCharacterClose();
+
+	UPROPERTY(EditAnywhere)
+	float CameraThreshold = 200.f;
+
 	
 public:
 	// 与Weapon重叠时调用 只在server调用
