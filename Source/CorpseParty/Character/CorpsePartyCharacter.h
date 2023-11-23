@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "CorpseParty/CorpsePartyTypes/TurningInPlace.h"
+#include "CorpseParty/Interfaces/InteractWithCrosshairsInterface.h"
 #include "GameFramework/Character.h"
 #include "CorpsePartyCharacter.generated.h"
 
 UCLASS()
-class CORPSEPARTY_API ACorpsePartyCharacter : public ACharacter
+class CORPSEPARTY_API ACorpsePartyCharacter : public ACharacter, public IInteractWithCrosshairsInterface
 {
 	GENERATED_BODY()
 
