@@ -9,6 +9,7 @@
 #include "Components/WidgetComponent.h"
 #include "CorpseParty/CorpseParty.h"
 #include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
+#include "CorpseParty/PlayerController/CorpsePartyPlayerController.h"
 #include "CorpseParty/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
@@ -66,6 +67,12 @@ void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
 void ACorpsePartyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CorpsePartyPlayerController = Cast<ACorpsePartyPlayerController>(Controller);
+	if (CorpsePartyPlayerController)
+	{
+		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 }
 
 void ACorpsePartyCharacter::Tick(float DeltaTime)
