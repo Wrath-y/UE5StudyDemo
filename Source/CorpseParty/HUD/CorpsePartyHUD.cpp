@@ -2,7 +2,25 @@
 
 
 #include "CorpsePartyHUD.h"
+#include "GameFramework/PlayerController.h"
+#include "CharacterOverlay.h"
 
+void ACorpsePartyHUD::BeginPlay()
+{
+	Super::BeginPlay();
+
+	AddCharacterOverlay();
+}
+
+void ACorpsePartyHUD::AddCharacterOverlay()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && CharacterOverlayClass)
+	{
+		CharacterOverlay = CreateWidget<UCharacterOverlay>(PlayerController, CharacterOverlayClass);
+		CharacterOverlay->AddToViewport();
+	}
+}
 void ACorpsePartyHUD::DrawHUD()
 {
 	Super::DrawHUD();

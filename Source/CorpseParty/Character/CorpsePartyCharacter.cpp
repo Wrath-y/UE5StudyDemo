@@ -53,6 +53,7 @@ void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 
 	UE_LOG(LogTemp, Warning, TEXT("GetLifetimeReplicatedProps"))
 	DOREPLIFETIME_CONDITION(ACorpsePartyCharacter, OverlappingWeapon, COND_OwnerOnly);
+	DOREPLIFETIME(ACorpsePartyCharacter, Health);
 }
 
 void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
@@ -390,6 +391,10 @@ void ACorpsePartyCharacter::HideCameraIfCharacterClose()
 			Combat->EquippedWeapon->GetWeaponMesh()->bOwnerNoSee = false;
 		}
 	}
+}
+
+void ACorpsePartyCharacter::OnRep_Health()
+{
 }
 
 void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
