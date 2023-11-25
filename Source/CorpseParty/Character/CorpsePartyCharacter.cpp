@@ -68,10 +68,10 @@ void ACorpsePartyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CorpsePartyPlayerController = Cast<ACorpsePartyPlayerController>(Controller);
-	if (CorpsePartyPlayerController)
+	UpdateHUDHealth();
+	if (HasAuthority())
 	{
-		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
+		OnTakeAnyDamage.AddDynamic(this, &ACorpsePartyCharacter::ReceiveDamage);
 	}
 }
 
@@ -152,6 +152,13 @@ void ACorpsePartyCharacter::PlayHitReactMontage()
 	}
 }
 
+void ACorpsePartyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType,
+	AController* InstigatorController, AActor* DamageCauser)
+{
+	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
 
 void ACorpsePartyCharacter::MoveForward(float Value)
 {
@@ -374,11 +381,6 @@ void ACorpsePartyCharacter::TurnInPlace(float DeltaTime)
 	}
 }
 
-void ACorpsePartyCharacter::MulticastHit_Implementation()
-{
-	PlayHitReactMontage();
-}
-
 void ACorpsePartyCharacter::HideCameraIfCharacterClose()
 {
 	if (!IsLocallyControlled()) return;
@@ -402,6 +404,17 @@ void ACorpsePartyCharacter::HideCameraIfCharacterClose()
 
 void ACorpsePartyCharacter::OnRep_Health()
 {
+	UpdateHUDHealth();
+	PlayHitReactMontage();
+}
+
+void ACorpsePartyCharacter::UpdateHUDHealth()
+{
+	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
+	if (CorpsePartyPlayerController)
+	{
+		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
 }
 
 void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
