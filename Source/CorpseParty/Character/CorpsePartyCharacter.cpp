@@ -52,6 +52,9 @@ ACorpsePartyCharacter::ACorpsePartyCharacter()
 	TurningInPlace = ETurningInPlace::ETIP_NotTurning;
 	NetUpdateFrequency = 66.f;
 	MinNetUpdateFrequency = 33.f;
+
+	
+	DissolveTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("DissolveTimelineComponent"));
 }
 
 void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -85,6 +88,15 @@ void ACorpsePartyCharacter::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
+
+	if (DissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance = UMaterialInstanceDynamic::Create(DissolveMaterialInstance, this);
+		GetMesh()->SetMaterial(0, DynamicDissolveMaterialInstance);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), 0.55f);
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Glow"), 200.f);
+	}
+	StartDissolve();
 }
 
 void ACorpsePartyCharacter::ElimTimerFinished()
@@ -95,7 +107,6 @@ void ACorpsePartyCharacter::ElimTimerFinished()
 		CorpsePartyGameMode->RequestRespawn(this, Controller);
 	}
 }
-
 
 void ACorpsePartyCharacter::BeginPlay()
 {
@@ -467,6 +478,24 @@ void ACorpsePartyCharacter::UpdateHUDHealth()
 	if (CorpsePartyPlayerController)
 	{
 		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ACorpsePartyCharacter::UpdateDissolveMaterial(float DissolveValue)
+{
+	if (DynamicDissolveMaterialInstance)
+	{
+		DynamicDissolveMaterialInstance->SetScalarParameterValue(TEXT("Dissolve"), DissolveValue);
+	}
+}
+
+void ACorpsePartyCharacter::StartDissolve()
+{
+	DissolveTrack.BindDynamic(this, &ACorpsePartyCharacter::UpdateDissolveMaterial);
+	if (DissolveCurve && DissolveTimeline)
+	{
+		DissolveTimeline->AddInterpFloat(DissolveCurve, DissolveTrack);
+		DissolveTimeline->Play();
 	}
 }
 

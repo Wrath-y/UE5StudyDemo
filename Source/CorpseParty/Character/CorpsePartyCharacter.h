@@ -6,7 +6,10 @@
 #include "CorpseParty/CorpsePartyTypes/TurningInPlace.h"
 #include "CorpseParty/Interfaces/InteractWithCrosshairsInterface.h"
 #include "GameFramework/Character.h"
+#include "Components/TimelineComponent.h"
 #include "CorpsePartyCharacter.generated.h"
+
+class UTimelineComponent;
 
 UCLASS()
 class CORPSEPARTY_API ACorpsePartyCharacter : public ACharacter, public IInteractWithCrosshairsInterface
@@ -129,6 +132,29 @@ private:
 	float ElimDelay = 3.f;
 
 	void ElimTimerFinished();
+
+	/**
+	* Dissolve effect
+	*/
+
+	UPROPERTY(VisibleAnywhere)
+	UTimelineComponent* DissolveTimeline;
+	FOnTimelineFloat DissolveTrack;
+
+	UPROPERTY(EditAnywhere)
+	UCurveFloat* DissolveCurve;
+
+	UFUNCTION()
+	void UpdateDissolveMaterial(float DissolveValue);
+	void StartDissolve();
+
+	// Dynamic instance that we can change at runtime
+	UPROPERTY(VisibleAnywhere, Category = Elim)
+	UMaterialInstanceDynamic* DynamicDissolveMaterialInstance;
+
+	// Material instance set on the Blueprint, used with the dynamic material instance
+	UPROPERTY(EditAnywhere, Category = Elim)
+	UMaterialInstance* DissolveMaterialInstance;
 	
 public:
 	// 与Weapon重叠时调用 只在server调用
