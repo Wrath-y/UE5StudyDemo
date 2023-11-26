@@ -14,6 +14,7 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
 #include "CorpseParty/GameMode/CorpsePartyGameMode.h"
+#include "TimerManager.h"
 
 class ACorpsePartyGameMode;
 
@@ -67,11 +68,32 @@ void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void ACorpsePartyCharacter::Elim_Implementation()
+void ACorpsePartyCharacter::Elim()
+{
+	MulticastElim();
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ACorpsePartyCharacter::ElimTimerFinished,
+		ElimDelay
+	);
+}
+
+void ACorpsePartyCharacter::MulticastElim_Implementation()
 {
 	bElimmed = true;
 	PlayElimMontage();
 }
+
+void ACorpsePartyCharacter::ElimTimerFinished()
+{
+	ACorpsePartyGameMode* CorpsePartyGameMode = GetWorld()->GetAuthGameMode<ACorpsePartyGameMode>();
+	if (CorpsePartyGameMode)
+	{
+		CorpsePartyGameMode->RequestRespawn(this, Controller);
+	}
+}
+
 
 void ACorpsePartyCharacter::BeginPlay()
 {

@@ -16,4 +16,5 @@ class CORPSEPARTY_API ACorpsePartyGameMode : public AGameMode
 
 public:
 	virtual void PlayerEliminated(class ACorpsePartyCharacter* ElimmedCharacter, class ACorpsePartyPlayerController* VictimController, ACorpsePartyPlayerController* AttackerController);
+	virtual void RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController);
 };
