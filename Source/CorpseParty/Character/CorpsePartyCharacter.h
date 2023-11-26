@@ -20,8 +20,11 @@ public:
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PostInitializeComponents() override;
 	void PlayFireMontage(bool bAiming);
-
+	void PlayElimMontage();
 	virtual void OnRep_ReplicatedMovement() override;
+
+	UFUNCTION(NetMulticast, Reliable)
+	void Elim();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -86,6 +89,9 @@ private:
 	UPROPERTY(EditAnywhere, Category=Combat)
 	UAnimMontage* HitReactMontage;
 
+	UPROPERTY(EditAnywhere, Category = Combat)
+	UAnimMontage* ElimMontage;
+
 	void HideCameraIfCharacterClose();
 
 	UPROPERTY(EditAnywhere)
@@ -113,6 +119,8 @@ private:
 	void OnRep_Health();
 
 	class ACorpsePartyPlayerController* CorpsePartyPlayerController;
+
+	bool bElimmed = false;
 	
 public:
 	// 与Weapon重叠时调用 只在server调用
@@ -126,4 +134,5 @@ public:
 	FVector GetHitTarget() const;
 	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 	FORCEINLINE bool ShouldRotateRootBone() const { return bRotateRootBone; }
+	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 };

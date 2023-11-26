@@ -13,6 +13,9 @@
 #include "CorpseParty/Weapon/Weapon.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "CorpseParty/GameMode/CorpsePartyGameMode.h"
+
+class ACorpsePartyGameMode;
 
 ACorpsePartyCharacter::ACorpsePartyCharacter()
 {
@@ -62,6 +65,12 @@ void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
 	Super::OnRep_ReplicatedMovement();
 	SimProxiesTurn();
 	TimeSinceLastMovementReplication = 0.f;
+}
+
+void ACorpsePartyCharacter::Elim_Implementation()
+{
+	bElimmed = true;
+	PlayElimMontage();
 }
 
 void ACorpsePartyCharacter::BeginPlay()
@@ -139,6 +148,15 @@ void ACorpsePartyCharacter::PlayFireMontage(bool bAiming)
 	}
 }
 
+void ACorpsePartyCharacter::PlayElimMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && ElimMontage)
+	{
+		AnimInstance->Montage_Play(ElimMontage);
+	}
+}
+
 void ACorpsePartyCharacter::PlayHitReactMontage()
 {
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
@@ -158,6 +176,17 @@ void ACorpsePartyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, co
 	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
 	UpdateHUDHealth();
 	PlayHitReactMontage();
+
+	if (Health == 0.f)
+	{
+		ACorpsePartyGameMode* CorpsePartyGameMode = GetWorld()->GetAuthGameMode<ACorpsePartyGameMode>();
+		if (CorpsePartyGameMode)
+		{
+			CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
+			ACorpsePartyPlayerController* AttackerController = Cast<ACorpsePartyPlayerController>(InstigatorController);
+			CorpsePartyGameMode->PlayerEliminated(this, CorpsePartyPlayerController, AttackerController);
+		}
+	}
 }
 
 void ACorpsePartyCharacter::MoveForward(float Value)
