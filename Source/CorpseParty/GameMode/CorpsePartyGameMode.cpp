@@ -4,11 +4,25 @@
 #include "CorpsePartyGameMode.h"
 #include "CorpseParty/Character/CorpsePartyCharacter.h"
 #include "CorpseParty/PlayerController/CorpsePartyPlayerController.h"
+#include "CorpseParty/PlayerState/CorpsePartyPlayerState.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 
 void ACorpsePartyGameMode::PlayerEliminated(ACorpsePartyCharacter* ElimmedCharacter, ACorpsePartyPlayerController* VictimController, ACorpsePartyPlayerController* AttackerController)
 {
+	if (AttackerController == nullptr || AttackerController->PlayerState == nullptr) return;
+	if (VictimController == nullptr || VictimController->PlayerState == nullptr) return;
+	ACorpsePartyPlayerState* AttackerPlayerState = AttackerController ? Cast<ACorpsePartyPlayerState>(AttackerController->PlayerState) : nullptr;
+	ACorpsePartyPlayerState* VictimPlayerState = VictimController ? Cast<ACorpsePartyPlayerState>(VictimController->PlayerState) : nullptr;
+
+	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState)
+	{
+		AttackerPlayerState->AddToScore(1.f);
+	}
+	if (VictimPlayerState)
+	{
+		VictimPlayerState->AddToDefeats(1);
+	}
 	if (ElimmedCharacter)
 	{
 		ElimmedCharacter->Elim();

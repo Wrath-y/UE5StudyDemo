@@ -55,6 +55,9 @@ protected:
 	UFUNCTION()
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const UDamageType* DamageType, class AController* InstigatorController, AActor* DamageCauser);
 	void UpdateHUDHealth();
+
+	// Poll for any relelvant classes and initialize our HUD
+	void PollInit();	
 	
 private:
 	UPROPERTY(VisibleAnywhere, Category = Camera)
@@ -169,6 +172,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ElimBotSound;
+	
+	class ACorpsePartyPlayerState* CorpsePartyPlayerState;
 	
 public:
 	// 与Weapon重叠时调用 只在server调用

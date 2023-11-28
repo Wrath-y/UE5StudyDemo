@@ -18,6 +18,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Sound/SoundCue.h"
+#include "CorpseParty/PlayerState/CorpsePartyPlayerState.h"
 
 class ACorpsePartyGameMode;
 
@@ -187,6 +188,7 @@ void ACorpsePartyCharacter::Tick(float DeltaTime)
 	}
 
 	HideCameraIfCharacterClose();
+	PollInit();
 }
 
 void ACorpsePartyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -527,6 +529,19 @@ void ACorpsePartyCharacter::UpdateHUDHealth()
 	if (CorpsePartyPlayerController)
 	{
 		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ACorpsePartyCharacter::PollInit()
+{
+	if (CorpsePartyPlayerState == nullptr)
+	{
+		CorpsePartyPlayerState = GetPlayerState<ACorpsePartyPlayerState>();
+		if (CorpsePartyPlayerState)
+		{
+			CorpsePartyPlayerState->AddToScore(0.f);
+			CorpsePartyPlayerState->AddToDefeats(0);
+		}
 	}
 }
 
