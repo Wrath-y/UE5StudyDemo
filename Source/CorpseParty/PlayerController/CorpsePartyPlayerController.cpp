@@ -6,6 +6,7 @@
 #include "CorpseParty/HUD/CharacterOverlay.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "CorpseParty/Character/CorpsePartyCharacter.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
@@ -28,5 +29,15 @@ void ACorpsePartyPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		CorpsePartyHUD->CharacterOverlay->HealthBar->SetPercent(HealthPercent);
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		CorpsePartyHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
+	}
+}
+
+void ACorpsePartyPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(InPawn);
+	if (CorpsePartyCharacter)
+	{
+		SetHUDHealth(CorpsePartyCharacter->GetHealth(), CorpsePartyCharacter->GetMaxHealth());
 	}
 }
