@@ -21,6 +21,7 @@ void ACorpsePartyGameMode::PlayerEliminated(ACorpsePartyCharacter* ElimmedCharac
 	}
 	if (VictimPlayerState)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AddToDefeats"))
 		VictimPlayerState->AddToDefeats(1);
 	}
 	if (ElimmedCharacter)
