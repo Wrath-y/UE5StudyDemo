@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "CorpseParty/CorpsePartyTypes/TurningInPlace.h"
+#include "CorpseParty/CorpsePartyTypes/CombatState.h"
 #include "CorpseParty/Interfaces/InteractWithCrosshairsInterface.h"
 #include "GameFramework/Character.h"
 #include "Components/TimelineComponent.h"
@@ -78,7 +79,7 @@ private:
 	UFUNCTION()
 	void OnRep_OverlappingWeapon(AWeapon* LastWeapon);
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	class UCombatComponent* Combat;
 
 	// Server 才会调用
@@ -197,4 +198,5 @@ public:
 	FORCEINLINE bool IsElimmed() const { return bElimmed; }
 	FORCEINLINE float GetHealth() const { return Health; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	ECombatState GetCombatState() const;
 };

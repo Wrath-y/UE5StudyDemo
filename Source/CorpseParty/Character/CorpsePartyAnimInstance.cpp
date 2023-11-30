@@ -6,6 +6,7 @@
 #include "CorpseParty/Weapon/Weapon.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "CorpseParty/CorpsePartyTypes/CombatState.h"
 
 void UCorpsePartyAnimInstance::NativeInitializeAnimation()
 {
@@ -80,4 +81,6 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 			// DrawDebugLine(GetWorld(), MuzzleTipTransform.GetLocation(), CorpsePartyCharacter->GetHitTarget(), FColor::Orange);
 		}
 	}
+
+	bUseFABRIK = CorpsePartyCharacter->GetCombatState() != ECombatState::ECS_Reloading;
 }

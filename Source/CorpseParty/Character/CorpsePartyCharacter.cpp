@@ -245,6 +245,8 @@ void ACorpsePartyCharacter::PlayReloadMontage()
 	
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("Rifle"))
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && ReloadMontage)
 	{
@@ -648,4 +650,10 @@ FVector ACorpsePartyCharacter::GetHitTarget() const
 {
 	if (Combat == nullptr) return FVector();
 	return Combat->HitTarget;
+}
+
+ECombatState ACorpsePartyCharacter::GetCombatState() const
+{
+	if (Combat == nullptr) return ECombatState::ECS_MAX;
+	return Combat->CombatState;
 }
