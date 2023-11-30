@@ -27,7 +27,9 @@ public:
 	void AddToScore(float ScoreAmount);
 	void AddToDefeats(int32 DefeatsAmount);
 private:
+	UPROPERTY()
 	class ACorpsePartyCharacter* Character;
+	UPROPERTY()
 	class ACorpsePartyPlayerController* Controller;
 
 	UPROPERTY(ReplicatedUsing = OnRep_Defeats)

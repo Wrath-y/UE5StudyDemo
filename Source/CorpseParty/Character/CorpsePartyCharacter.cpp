@@ -94,6 +94,10 @@ void ACorpsePartyCharacter::Elim()
 
 void ACorpsePartyCharacter::MulticastElim_Implementation()
 {
+	if (CorpsePartyPlayerController)
+	{
+		CorpsePartyPlayerController->SetHUDWeaponAmmo(0);
+	}
 	bElimmed = true;
 	PlayElimMontage();
 

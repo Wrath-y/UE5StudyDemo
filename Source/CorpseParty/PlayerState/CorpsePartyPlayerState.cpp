@@ -17,7 +17,7 @@ void ACorpsePartyPlayerState::AddToScore(float ScoreAmount)
 {
 	SetScore(GetScore() + ScoreAmount);
 	Character = Character == nullptr ? Cast<ACorpsePartyCharacter>(GetPawn()) : Character;
-	if (Character && Character->Controller)
+	if (Character)
 	{
 		Controller = Controller == nullptr ? Cast<ACorpsePartyPlayerController>(Character->Controller) : Controller;
 		if (Controller)
@@ -32,7 +32,7 @@ void ACorpsePartyPlayerState::OnRep_Score()
 	Super::OnRep_Score();
 
 	Character = Character == nullptr ? Cast<ACorpsePartyCharacter>(GetPawn()) : Character;
-	if (Character && Character->Controller)
+	if (Character)
 	{
 		Controller = Controller == nullptr ? Cast<ACorpsePartyPlayerController>(Character->Controller) : Controller;
 		if (Controller)
@@ -47,7 +47,7 @@ void ACorpsePartyPlayerState::AddToDefeats(int32 DefeatsAmount)
 	Defeats += DefeatsAmount;
 	
 	Character = !IsValid(Character) ? Cast<ACorpsePartyCharacter>(GetPawn()) : Character;
-	if (Character && Character->Controller)
+	if (Character)
 	{
 		Controller = !IsValid(Controller) ? Cast<ACorpsePartyPlayerController>(Character->Controller) : Controller;
 		if (Controller)
@@ -60,7 +60,7 @@ void ACorpsePartyPlayerState::AddToDefeats(int32 DefeatsAmount)
 void ACorpsePartyPlayerState::OnRep_Defeats()
 {
 	Character = !IsValid(Character) ? Cast<ACorpsePartyCharacter>(GetPawn()) : Character;
-	if (Character && Character->Controller)
+	if (Character)
 	{
 		Controller = !IsValid(Controller) ? Cast<ACorpsePartyPlayerController>(Character->Controller) : Controller;
 		if (Controller)

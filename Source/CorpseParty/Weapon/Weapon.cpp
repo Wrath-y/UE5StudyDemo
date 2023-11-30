@@ -8,6 +8,7 @@
 #include "CorpseParty/Character/CorpsePartyCharacter.h"
 #include "Net/UnrealNetwork.h"
 #include "Animation/AnimationAsset.h"
+#include "CorpseParty/PlayerController/CorpsePartyPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
 
 // Sets default values
@@ -59,6 +60,7 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AWeapon, WeaponState);
+	DOREPLIFETIME(AWeapon, Ammo);
 }
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -98,6 +100,47 @@ void AWeapon::OnRep_WeaponState()
 		WeaponMesh->SetEnableGravity(true);
 		WeaponMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		break;
+	}
+}
+
+void AWeapon::SetHUDAmmo()
+{
+	CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(GetOwner()) : CorpsePartyOwnerCharacter;
+	if (CorpsePartyOwnerCharacter)
+	{
+		CorpsePartyOwnerController = CorpsePartyOwnerController == nullptr ? Cast<ACorpsePartyPlayerController>(CorpsePartyOwnerCharacter->Controller) : CorpsePartyOwnerController;
+		if (CorpsePartyOwnerController)
+		{
+			CorpsePartyOwnerController->SetHUDWeaponAmmo(Ammo);
+		}
+	}
+}
+
+void AWeapon::SpendRound()
+{
+	--Ammo;
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Ammo()
+{
+	CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(GetOwner()) : CorpsePartyOwnerCharacter;
+	SetHUDAmmo();
+}
+
+void AWeapon::OnRep_Owner()
+{
+	Super::OnRep_Owner();
+
+	Super::OnRep_Owner();
+	if (Owner == nullptr)
+	{
+		CorpsePartyOwnerCharacter = nullptr;
+		CorpsePartyOwnerController = nullptr;
+	}
+	else
+	{
+		SetHUDAmmo();
 	}
 }
 
@@ -157,6 +200,7 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
+	SpendRound();
 }
 
 void AWeapon::Dropped()
@@ -165,4 +209,7 @@ void AWeapon::Dropped()
 	FDetachmentTransformRules DetachRules(EDetachmentRule::KeepWorld, true);
 	WeaponMesh->DetachFromComponent(DetachRules);
 	SetOwner(nullptr);
+
+	CorpsePartyOwnerCharacter = nullptr;
+	CorpsePartyOwnerController = nullptr;
 }

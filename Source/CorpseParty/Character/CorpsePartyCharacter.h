@@ -126,6 +126,7 @@ private:
 	UFUNCTION()
 	void OnRep_Health();
 
+	UPROPERTY()
 	class ACorpsePartyPlayerController* CorpsePartyPlayerController;
 
 	bool bElimmed = false;
@@ -172,7 +173,8 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	class USoundCue* ElimBotSound;
-	
+
+	UPROPERTY()
 	class ACorpsePartyPlayerState* CorpsePartyPlayerState;
 	
 public:

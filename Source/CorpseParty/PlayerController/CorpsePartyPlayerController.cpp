@@ -58,6 +58,19 @@ void ACorpsePartyPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 }
 
+void ACorpsePartyPlayerController::SetHUDWeaponAmmo(int32 Ammo)
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->WeaponAmmoAmount;
+	if (bHUDValid)
+	{
+		FString AmmoText = FString::Printf(TEXT("%d"), Ammo);
+		CorpsePartyHUD->CharacterOverlay->WeaponAmmoAmount->SetText(FText::FromString(AmmoText));
+	}
+}
+
 void ACorpsePartyPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
