@@ -15,6 +15,13 @@ void ACorpsePartyPlayerController::BeginPlay()
 	CorpsePartyHUD = Cast<ACorpsePartyHUD>(GetHUD());
 }
 
+void ACorpsePartyPlayerController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	SetHUDTime();
+}
+
 void ACorpsePartyPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
@@ -92,4 +99,31 @@ void ACorpsePartyPlayerController::OnPossess(APawn* InPawn)
 	{
 		SetHUDHealth(CorpsePartyCharacter->GetHealth(), CorpsePartyCharacter->GetMaxHealth());
 	}
+}
+
+void ACorpsePartyPlayerController::SetHUDMatchCountdown(float CountdownTime)
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->MatchCountdownText;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		CorpsePartyHUD->CharacterOverlay->MatchCountdownText->SetText(FText::FromString(CountdownText));
+	}
+}
+
+void ACorpsePartyPlayerController::SetHUDTime()
+{
+	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetWorld()->GetTimeSeconds());
+	if (CountdownInt != SecondsLeft)
+	{
+		SetHUDMatchCountdown(MatchTime - GetWorld()->GetTimeSeconds());
+	}
+
+	CountdownInt = SecondsLeft;
 }
