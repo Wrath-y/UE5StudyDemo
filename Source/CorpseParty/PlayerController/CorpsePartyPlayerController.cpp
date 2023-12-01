@@ -7,6 +7,7 @@
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "CorpseParty/Character/CorpsePartyCharacter.h"
+#include "Net/UnrealNetwork.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
