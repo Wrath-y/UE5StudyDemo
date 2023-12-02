@@ -8,6 +8,8 @@
 #include "Components/TextBlock.h"
 #include "CorpseParty/Character/CorpsePartyCharacter.h"
 #include "Net/UnrealNetwork.h"
+#include "CorpseParty/GameMode/CorpsePartyGameMode.h"
+#include "CorpseParty/PlayerState/CorpsePartyPlayerState.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
@@ -16,12 +18,21 @@ void ACorpsePartyPlayerController::BeginPlay()
 	CorpsePartyHUD = Cast<ACorpsePartyHUD>(GetHUD());
 }
 
+void ACorpsePartyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(ACorpsePartyPlayerController, MatchState);
+}
+
+
 void ACorpsePartyPlayerController::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
+	PollInit();
 }
 
 void ACorpsePartyPlayerController::CheckTimeSync(float DeltaTime)
@@ -49,6 +60,12 @@ void ACorpsePartyPlayerController::SetHUDHealth(float Health, float MaxHealth)
 		FString HealthText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Health), FMath::CeilToInt(MaxHealth));
 		CorpsePartyHUD->CharacterOverlay->HealthText->SetText(FText::FromString(HealthText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDHealth = Health;
+		HUDMaxHealth = MaxHealth;
+	}
 }
 
 void ACorpsePartyPlayerController::SetHUDScore(float Score)
@@ -62,6 +79,11 @@ void ACorpsePartyPlayerController::SetHUDScore(float Score)
 		FString ScoreText = FString::Printf(TEXT("%d"), FMath::FloorToInt(Score));
 		CorpsePartyHUD->CharacterOverlay->ScoreAmount->SetText(FText::FromString(ScoreText));
 	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDScore = Score;
+	}
 }
 
 void ACorpsePartyPlayerController::SetHUDDefeats(int32 Defeats)
@@ -74,6 +96,11 @@ void ACorpsePartyPlayerController::SetHUDDefeats(int32 Defeats)
 	{
 		FString DefeatsText = FString::Printf(TEXT("%d"), Defeats);
 		CorpsePartyHUD->CharacterOverlay->DefeatsAmount->SetText(FText::FromString(DefeatsText));
+	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDDefeats = Defeats;
 	}
 }
 
@@ -140,6 +167,23 @@ void ACorpsePartyPlayerController::SetHUDTime()
 	CountdownInt = SecondsLeft;
 }
 
+void ACorpsePartyPlayerController::PollInit()
+{
+	if (CharacterOverlay == nullptr)
+	{
+		if (CorpsePartyHUD && CorpsePartyHUD->CharacterOverlay)
+		{
+			CharacterOverlay = CorpsePartyHUD->CharacterOverlay;
+			if (CharacterOverlay)
+			{
+				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDScore(HUDScore);
+				SetHUDDefeats(HUDDefeats);
+			}
+		}
+	}
+}
+
 void ACorpsePartyPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
 {
 	float ServerTimeOfReceipt = GetWorld()->GetTimeSeconds();
@@ -165,5 +209,31 @@ void ACorpsePartyPlayerController::ReceivedPlayer()
 	if (IsLocalController())
 	{
 		ServerRequestServerTime(GetWorld()->GetTimeSeconds());
+	}
+}
+
+void ACorpsePartyPlayerController::OnMatchStateSet(FName State)
+{
+	MatchState = State;
+
+	if (MatchState == MatchState::InProgress)
+	{
+		CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+		if (CorpsePartyHUD)
+		{
+			CorpsePartyHUD->AddCharacterOverlay();
+		}
+	}
+}
+
+void ACorpsePartyPlayerController::OnRep_MatchState()
+{
+	if (MatchState == MatchState::InProgress)
+	{
+		CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+		if (CorpsePartyHUD)
+		{
+			CorpsePartyHUD->AddCharacterOverlay();
+		}
 	}
 }

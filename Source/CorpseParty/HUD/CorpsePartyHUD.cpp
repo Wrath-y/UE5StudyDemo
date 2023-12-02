@@ -8,8 +8,6 @@
 void ACorpsePartyHUD::BeginPlay()
 {
 	Super::BeginPlay();
-
-	AddCharacterOverlay();
 }
 
 void ACorpsePartyHUD::AddCharacterOverlay()

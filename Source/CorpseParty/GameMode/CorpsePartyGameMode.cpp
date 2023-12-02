@@ -34,6 +34,20 @@ void ACorpsePartyGameMode::Tick(float DeltaTime)
 	}
 }
 
+void ACorpsePartyGameMode::OnMatchStateSet()
+{
+	Super::OnMatchStateSet();
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		ACorpsePartyPlayerController* CorpsePartyPlayer = Cast<ACorpsePartyPlayerController>(*It);
+		if (CorpsePartyPlayer)
+		{
+			CorpsePartyPlayer->OnMatchStateSet(MatchState);
+		}
+	}
+}
+
 void ACorpsePartyGameMode::PlayerEliminated(ACorpsePartyCharacter* ElimmedCharacter, ACorpsePartyPlayerController* VictimController, ACorpsePartyPlayerController* AttackerController)
 {
 	if (AttackerController == nullptr || AttackerController->PlayerState == nullptr) return;
