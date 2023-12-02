@@ -4,6 +4,7 @@
 #include "CorpsePartyHUD.h"
 #include "GameFramework/PlayerController.h"
 #include "CharacterOverlay.h"
+#include "Announcement.h"
 
 void ACorpsePartyHUD::BeginPlay()
 {
@@ -19,6 +20,18 @@ void ACorpsePartyHUD::AddCharacterOverlay()
 		CharacterOverlay->AddToViewport();
 	}
 }
+
+void ACorpsePartyHUD::AddAnnouncement()
+{
+	APlayerController* PlayerController = GetOwningPlayerController();
+	if (PlayerController && AnnouncementClass)
+	{
+		Announcement = CreateWidget<UAnnouncement>(PlayerController, AnnouncementClass);
+		Announcement->AddToViewport();
+	}
+}
+
+
 void ACorpsePartyHUD::DrawHUD()
 {
 	Super::DrawHUD();

@@ -10,12 +10,18 @@
 #include "Net/UnrealNetwork.h"
 #include "CorpseParty/GameMode/CorpsePartyGameMode.h"
 #include "CorpseParty/PlayerState/CorpsePartyPlayerState.h"
+#include "CorpseParty/HUD/Announcement.h"
+#include "Kismet/GameplayStatics.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
 	CorpsePartyHUD = Cast<ACorpsePartyHUD>(GetHUD());
+	if (CorpsePartyHUD)
+	{
+		CorpsePartyHUD->AddAnnouncement();
+	}
 }
 
 void ACorpsePartyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -218,11 +224,7 @@ void ACorpsePartyPlayerController::OnMatchStateSet(FName State)
 
 	if (MatchState == MatchState::InProgress)
 	{
-		CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
-		if (CorpsePartyHUD)
-		{
-			CorpsePartyHUD->AddCharacterOverlay();
-		}
+		HandleMatchHasStarted();
 	}
 }
 
@@ -230,10 +232,19 @@ void ACorpsePartyPlayerController::OnRep_MatchState()
 {
 	if (MatchState == MatchState::InProgress)
 	{
-		CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
-		if (CorpsePartyHUD)
+		HandleMatchHasStarted();
+	}
+}
+
+void ACorpsePartyPlayerController::HandleMatchHasStarted()
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	if (CorpsePartyHUD)
+	{
+		CorpsePartyHUD->AddCharacterOverlay();
+		if (CorpsePartyHUD->Announcement)
 		{
-			CorpsePartyHUD->AddCharacterOverlay();
+			CorpsePartyHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
