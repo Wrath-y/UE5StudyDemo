@@ -18,10 +18,7 @@ void ACorpsePartyPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	CorpsePartyHUD = Cast<ACorpsePartyHUD>(GetHUD());
-	if (CorpsePartyHUD)
-	{
-		CorpsePartyHUD->AddAnnouncement();
-	}
+	ServerCheckMatchState();
 }
 
 void ACorpsePartyPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -55,9 +52,9 @@ void ACorpsePartyPlayerController::SetHUDHealth(float Health, float MaxHealth)
 {
 	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
 
-	bool bHUDValid = CorpsePartyHUD && 
-		CorpsePartyHUD->CharacterOverlay && 
-		CorpsePartyHUD->CharacterOverlay->HealthBar && 
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->HealthBar &&
 		CorpsePartyHUD->CharacterOverlay->HealthText;
 	if (bHUDValid)
 	{
@@ -136,6 +133,33 @@ void ACorpsePartyPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	}
 }
 
+
+void ACorpsePartyPlayerController::ServerCheckMatchState_Implementation()
+{
+	ACorpsePartyGameMode* GameMode = Cast<ACorpsePartyGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GameMode)
+	{
+		WarmupTime = GameMode->WarmupTime;
+		MatchTime = GameMode->MatchTime;
+		LevelStartingTime = GameMode->LevelStartingTime;
+		MatchState = GameMode->GetMatchState();
+		ClientJoinMidgame(MatchState, WarmupTime, MatchTime, LevelStartingTime);
+	}
+}
+
+void ACorpsePartyPlayerController::ClientJoinMidgame_Implementation(FName StateOfMatch, float Warmup, float Match, float StartingTime)
+{
+	WarmupTime = Warmup;
+	MatchTime = Match;
+	LevelStartingTime = StartingTime;
+	MatchState = StateOfMatch;
+	OnMatchStateSet(MatchState);
+	if (CorpsePartyHUD && MatchState == MatchState::WaitingToStart)
+	{
+		CorpsePartyHUD->AddAnnouncement();
+	}
+}
+
 void ACorpsePartyPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
@@ -162,12 +186,40 @@ void ACorpsePartyPlayerController::SetHUDMatchCountdown(float CountdownTime)
 	}
 }
 
+
+void ACorpsePartyPlayerController::SetHUDAnnouncementCountdown(float CountdownTime)
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->Announcement &&
+		CorpsePartyHUD->Announcement->WarmupTime;
+	if (bHUDValid)
+	{
+		int32 Minutes = FMath::FloorToInt(CountdownTime / 60.f);
+		int32 Seconds = CountdownTime - Minutes * 60;
+
+		FString CountdownText = FString::Printf(TEXT("%02d:%02d"), Minutes, Seconds);
+		CorpsePartyHUD->Announcement->WarmupTime->SetText(FText::FromString(CountdownText));
+	}
+}
+
 void ACorpsePartyPlayerController::SetHUDTime()
 {
-	uint32 SecondsLeft = FMath::CeilToInt(MatchTime - GetServerTime());
+	float TimeLeft = 0.f;
+	if (MatchState == MatchState::WaitingToStart) TimeLeft = WarmupTime - GetServerTime() + LevelStartingTime;
+	else if (MatchState == MatchState::InProgress) TimeLeft = WarmupTime + MatchTime - GetServerTime() + LevelStartingTime;
+
+	uint32 SecondsLeft = FMath::CeilToInt(TimeLeft);
 	if (CountdownInt != SecondsLeft)
 	{
-		SetHUDMatchCountdown(MatchTime - GetServerTime());
+		if (MatchState == MatchState::WaitingToStart)
+		{
+			SetHUDAnnouncementCountdown(TimeLeft);
+		}
+		if (MatchState == MatchState::InProgress)
+		{
+			SetHUDMatchCountdown(TimeLeft);
+		}
 	}
 
 	CountdownInt = SecondsLeft;
