@@ -115,6 +115,10 @@ void ACorpsePartyCharacter::MulticastElim_Implementation()
 	
 	// Disable character movement
 	bDisableGameplay = true;
+	if (Combat)
+	{
+		Combat->FireButtonPressed(false);
+	}
 	
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -158,7 +162,10 @@ void ACorpsePartyCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
-	if (Combat && Combat->EquippedWeapon)
+	
+	ACorpsePartyGameMode* CorpsePartyGameMode = Cast<ACorpsePartyGameMode>(UGameplayStatics::GetGameMode(this));
+	bool bMatchNotInProgress = CorpsePartyGameMode && CorpsePartyGameMode->GetMatchState() != MatchState::InProgress;
+	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
 	{
 		Combat->EquippedWeapon->Destroy();
 	}

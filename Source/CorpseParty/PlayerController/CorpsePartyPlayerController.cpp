@@ -14,6 +14,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
 #include "CorpseParty/Weapon/Weapon.h"
+#include "CorpseParty/GameState/CorpsePartyGameState.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
@@ -341,7 +342,36 @@ void ACorpsePartyPlayerController::HandleCooldown()
 			CorpsePartyHUD->Announcement->SetVisibility(ESlateVisibility::Visible);
 			FString AnnouncementText("New Match Starts In:");
 			CorpsePartyHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
-			CorpsePartyHUD->Announcement->InfoText->SetText(FText());
+			
+			ACorpsePartyGameState* CorpsePartyGameState = Cast<ACorpsePartyGameState>(UGameplayStatics::GetGameState(this));
+			ACorpsePartyPlayerState* CorpsePartyPlayerState = GetPlayerState<ACorpsePartyPlayerState>();
+			if (CorpsePartyGameState && CorpsePartyPlayerState)
+			{
+				TArray<ACorpsePartyPlayerState*> TopPlayers = CorpsePartyGameState->TopScoringPlayers;
+				FString InfoTextString;
+				if (TopPlayers.Num() == 0)
+				{
+					InfoTextString = FString("There is no winner.");
+				}
+				else if (TopPlayers.Num() == 1 && TopPlayers[0] == CorpsePartyPlayerState)
+				{
+					InfoTextString = FString("You are the winner!");
+				}
+				else if (TopPlayers.Num() == 1)
+				{
+					InfoTextString = FString::Printf(TEXT("Winner: \n%s"), *TopPlayers[0]->GetPlayerName());
+				}
+				else if (TopPlayers.Num() > 1)
+				{
+					InfoTextString = FString("Players tied for the win:\n");
+					for (auto TiedPlayer : TopPlayers)
+					{
+						InfoTextString.Append(FString::Printf(TEXT("%s\n"), *TiedPlayer->GetPlayerName()));
+					}
+				}
+
+				CorpsePartyHUD->Announcement->InfoText->SetText(FText::FromString(InfoTextString));
+			}
 		}
 	}
 	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(GetPawn());
