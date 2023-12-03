@@ -12,6 +12,8 @@
 #include "CorpseParty/PlayerState/CorpsePartyPlayerState.h"
 #include "CorpseParty/HUD/Announcement.h"
 #include "Kismet/GameplayStatics.h"
+#include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
+#include "CorpseParty/Weapon/Weapon.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
@@ -341,5 +343,11 @@ void ACorpsePartyPlayerController::HandleCooldown()
 			CorpsePartyHUD->Announcement->AnnouncementText->SetText(FText::FromString(AnnouncementText));
 			CorpsePartyHUD->Announcement->InfoText->SetText(FText());
 		}
+	}
+	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(GetPawn());
+	if (CorpsePartyCharacter && CorpsePartyCharacter->GetCombat())
+	{
+		CorpsePartyCharacter->bDisableGameplay = true;
+		CorpsePartyCharacter->GetCombat()->FireButtonPressed(false);
 	}
 }

@@ -69,6 +69,7 @@ void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	UE_LOG(LogTemp, Warning, TEXT("GetLifetimeReplicatedProps"))
 	DOREPLIFETIME_CONDITION(ACorpsePartyCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ACorpsePartyCharacter, Health);
+	DOREPLIFETIME(ACorpsePartyCharacter, bDisableGameplay);
 }
 
 void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
@@ -113,12 +114,8 @@ void ACorpsePartyCharacter::MulticastElim_Implementation()
 	StartDissolve();
 	
 	// Disable character movement
-	GetCharacterMovement()->DisableMovement();
-	GetCharacterMovement()->StopMovementImmediately();
-	if (CorpsePartyPlayerController)
-	{
-		DisableInput(CorpsePartyPlayerController	);
-	}
+	bDisableGameplay = true;
+	
 	// Disable collision
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -161,6 +158,10 @@ void ACorpsePartyCharacter::Destroyed()
 	{
 		ElimBotComponent->DestroyComponent();
 	}
+	if (Combat && Combat->EquippedWeapon)
+	{
+		Combat->EquippedWeapon->Destroy();
+	}
 }
 
 void ACorpsePartyCharacter::BeginPlay()
@@ -178,6 +179,19 @@ void ACorpsePartyCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	RotateInPlace(DeltaTime);
+	HideCameraIfCharacterClose();
+	PollInit();
+}
+
+void ACorpsePartyCharacter::RotateInPlace(float DeltaTime)
+{
+	if (bDisableGameplay)
+	{
+		bUseControllerRotationYaw = false;
+		TurningInPlace = ETurningInPlace::ETIP_NotTurning;
+		return;
+	}
 	if (GetLocalRole() > ENetRole::ROLE_SimulatedProxy && IsLocallyControlled())
 	{
 		AimOffset(DeltaTime);
@@ -191,9 +205,6 @@ void ACorpsePartyCharacter::Tick(float DeltaTime)
 		}
 		CalculateAO_Pitch();
 	}
-
-	HideCameraIfCharacterClose();
-	PollInit();
 }
 
 void ACorpsePartyCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -307,6 +318,7 @@ void ACorpsePartyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, co
 
 void ACorpsePartyCharacter::MoveForward(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -317,6 +329,7 @@ void ACorpsePartyCharacter::MoveForward(float Value)
 
 void ACorpsePartyCharacter::MoveRight(float Value)
 {
+	if (bDisableGameplay) return;
 	if (Controller != nullptr && Value != 0.f)
 	{
 		const FRotator YawRotation(0.f, Controller->GetControlRotation().Yaw, 0.f);
@@ -338,6 +351,7 @@ void ACorpsePartyCharacter::LookUp(float Value)
 void ACorpsePartyCharacter::EquipButtonPressed()
 {
 	// Server 才会调用 EquipWeapon
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		if (HasAuthority())
@@ -361,6 +375,7 @@ void ACorpsePartyCharacter::ServerEquipButtonPressed_Implementation()
 
 void ACorpsePartyCharacter::CrouchButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -373,6 +388,7 @@ void ACorpsePartyCharacter::CrouchButtonPressed()
 
 void ACorpsePartyCharacter::ReloadButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->Reload();
@@ -381,6 +397,7 @@ void ACorpsePartyCharacter::ReloadButtonPressed()
 
 void ACorpsePartyCharacter::AimButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(true);
@@ -389,6 +406,7 @@ void ACorpsePartyCharacter::AimButtonPressed()
 
 void ACorpsePartyCharacter::AimButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->SetAiming(false);
@@ -482,6 +500,7 @@ void ACorpsePartyCharacter::SimProxiesTurn()
 
 void ACorpsePartyCharacter::Jump()
 {
+	if (bDisableGameplay) return;
 	if (bIsCrouched)
 	{
 		UnCrouch();
@@ -494,6 +513,7 @@ void ACorpsePartyCharacter::Jump()
 
 void ACorpsePartyCharacter::FireButtonPressed()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(true);
@@ -502,6 +522,7 @@ void ACorpsePartyCharacter::FireButtonPressed()
 
 void ACorpsePartyCharacter::FireButtonReleased()
 {
+	if (bDisableGameplay) return;
 	if (Combat)
 	{
 		Combat->FireButtonPressed(false);
