@@ -319,7 +319,7 @@ void ACorpsePartyPlayerController::HandleMatchHasStarted()
 	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
 	if (CorpsePartyHUD)
 	{
-		CorpsePartyHUD->AddCharacterOverlay();
+		if (CorpsePartyHUD->CharacterOverlay == nullptr) CorpsePartyHUD->AddCharacterOverlay();
 		if (CorpsePartyHUD->Announcement)
 		{
 			CorpsePartyHUD->Announcement->SetVisibility(ESlateVisibility::Hidden);
