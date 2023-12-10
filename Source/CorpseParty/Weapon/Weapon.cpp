@@ -10,6 +10,7 @@
 #include "Animation/AnimationAsset.h"
 #include "CorpseParty/PlayerController/CorpsePartyPlayerController.h"
 #include "Engine/SkeletalMeshSocket.h"
+#include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
 
 // Sets default values
 AWeapon::AWeapon()
@@ -135,6 +136,10 @@ void AWeapon::SpendRound()
 void AWeapon::OnRep_Ammo()
 {
 	CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(GetOwner()) : CorpsePartyOwnerCharacter;
+	if (CorpsePartyOwnerCharacter && CorpsePartyOwnerCharacter->GetCombat() && IsFull())
+	{
+		CorpsePartyOwnerCharacter->GetCombat()->JumpToShotgunEnd();
+	}
 	SetHUDAmmo();
 }
 
@@ -242,4 +247,9 @@ void AWeapon::AddAmmo(int32 AmmoToAdd)
 bool AWeapon::IsEmpty()
 {
 	return Ammo <= 0;
+}
+
+bool AWeapon::IsFull()
+{
+	return Ammo == MagCapacity;
 }
