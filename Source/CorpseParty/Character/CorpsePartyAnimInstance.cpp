@@ -82,7 +82,7 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 		}
 	}
 
-	bUseFABRIK = CorpsePartyCharacter->GetCombatState() != ECombatState::ECS_Reloading;
-	bUseAimOffsets = CorpsePartyCharacter->GetCombatState() != ECombatState::ECS_Reloading && !CorpsePartyCharacter->GetDisableGameplay();
-	bTransformRightHand = CorpsePartyCharacter->GetCombatState() != ECombatState::ECS_Reloading && !CorpsePartyCharacter->GetDisableGameplay();
+	bUseFABRIK = CorpsePartyCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
+	bUseAimOffsets = CorpsePartyCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !CorpsePartyCharacter->GetDisableGameplay();
+	bTransformRightHand = CorpsePartyCharacter->GetCombatState() == ECombatState::ECS_Unoccupied && !CorpsePartyCharacter->GetDisableGameplay();
 }
