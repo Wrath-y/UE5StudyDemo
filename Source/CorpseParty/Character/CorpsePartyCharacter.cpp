@@ -194,6 +194,10 @@ void ACorpsePartyCharacter::BeginPlay()
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ACorpsePartyCharacter::ReceiveDamage);
 	}
+	if (AttachedGrenade)
+	{
+		AttachedGrenade->SetVisibility(false);
+	}
 }
 
 void ACorpsePartyCharacter::Tick(float DeltaTime)
