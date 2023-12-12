@@ -194,6 +194,13 @@ private:
 
 	UPROPERTY()
 	class ACorpsePartyPlayerState* CorpsePartyPlayerState;
+
+	/** 
+	* Grenade
+	*/
+
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* AttachedGrenade;
 	
 public:
 	// 与Weapon重叠时调用 只在server调用
