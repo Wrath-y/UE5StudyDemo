@@ -220,6 +220,23 @@ void ACorpsePartyPlayerController::SetHUDAnnouncementCountdown(float CountdownTi
 	}
 }
 
+void ACorpsePartyPlayerController::SetHUDGrenades(int32 Grenades)
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->GrenadesText;
+	if (bHUDValid)
+	{
+		FString GrenadesText = FString::Printf(TEXT("%d"), Grenades);
+		CorpsePartyHUD->CharacterOverlay->GrenadesText->SetText(FText::FromString(GrenadesText));
+	}
+	else
+	{
+		HUDGrenades = Grenades;
+	}
+}
+
 void ACorpsePartyPlayerController::SetHUDTime()
 {
 	float TimeLeft = 0.f;
@@ -255,6 +272,12 @@ void ACorpsePartyPlayerController::PollInit()
 				SetHUDHealth(HUDHealth, HUDMaxHealth);
 				SetHUDScore(HUDScore);
 				SetHUDDefeats(HUDDefeats);
+
+				ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(GetPawn());
+				if (CorpsePartyCharacter && CorpsePartyCharacter->GetCombat())
+				{
+					SetHUDGrenades(CorpsePartyCharacter->GetCombat()->GetGrenades());
+				}
 			}
 		}
 	}
