@@ -644,10 +644,13 @@ void ACorpsePartyCharacter::HideCameraIfCharacterClose()
 	}
 }
 
-void ACorpsePartyCharacter::OnRep_Health()
+void ACorpsePartyCharacter::OnRep_Health(float LastHealth)
 {
 	UpdateHUDHealth();
-	PlayHitReactMontage();
+	if (Health < LastHealth)
+	{
+		PlayHitReactMontage();
+	}
 }
 
 void ACorpsePartyCharacter::UpdateHUDHealth()
