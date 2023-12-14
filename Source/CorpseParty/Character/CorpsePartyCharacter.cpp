@@ -272,6 +272,7 @@ void ACorpsePartyCharacter::PostInitializeComponents()
 			GetCharacterMovement()->MaxWalkSpeed, 
 			GetCharacterMovement()->MaxWalkSpeedCrouched
 		);
+		Buff->SetInitialJumpVelocity(GetCharacterMovement()->JumpZVelocity);
 	}
 }
 
