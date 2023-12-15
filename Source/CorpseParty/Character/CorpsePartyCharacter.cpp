@@ -74,10 +74,9 @@ void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	UE_LOG(LogTemp, Warning, TEXT("GetLifetimeReplicatedProps"))
 	DOREPLIFETIME_CONDITION(ACorpsePartyCharacter, OverlappingWeapon, COND_OwnerOnly);
-	DOREPLIFETIME(ACorpsePartyCharacter, Health);
 	DOREPLIFETIME(ACorpsePartyCharacter, Shield);
+	DOREPLIFETIME(ACorpsePartyCharacter, Health);
 	DOREPLIFETIME(ACorpsePartyCharacter, bDisableGameplay);
 }
 
@@ -194,7 +193,9 @@ void ACorpsePartyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Warning, TEXT("BeginPlay"))
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	if (HasAuthority())
 	{
 		OnTakeAnyDamage.AddDynamic(this, &ACorpsePartyCharacter::ReceiveDamage);
@@ -376,8 +377,27 @@ void ACorpsePartyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, co
 	AController* InstigatorController, AActor* DamageCauser)
 {
 	if (bElimmed) return;
-	Health = FMath::Clamp(Health - Damage, 0.f, MaxHealth);
+	
+	float DamageToHealth = Damage;
+	if (Shield > 0.f)
+	{
+		if (Shield >= Damage)
+		{
+			Shield = FMath::Clamp(Shield - Damage, 0.f, MaxShield);
+			DamageToHealth = 0.f;
+		}
+		else
+		{
+			Shield = 0.f;
+			DamageToHealth = FMath::Clamp(DamageToHealth - Shield, 0.f, Damage);
+		}
+	}
+
+	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
+
+	UE_LOG(LogTemp, Warning, TEXT("ReceiveDamage"))
 	UpdateHUDHealth();
+	UpdateHUDShield();
 	PlayHitReactMontage();
 
 	if (Health == 0.f)
@@ -673,6 +693,7 @@ void ACorpsePartyCharacter::UpdateHUDHealth()
 	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
 	if (CorpsePartyPlayerController)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdateHUDHealth %f"), Health)
 		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
@@ -682,6 +703,7 @@ void ACorpsePartyCharacter::UpdateHUDShield()
 	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
 	if (CorpsePartyPlayerController)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdateHUDShield %f"), Shield)
 		CorpsePartyPlayerController->SetHUDShield(Shield, MaxShield);
 	}
 }

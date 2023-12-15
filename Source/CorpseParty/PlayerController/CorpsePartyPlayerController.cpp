@@ -68,7 +68,7 @@ void ACorpsePartyPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeHealth = true;
 		HUDHealth = Health;
 		HUDMaxHealth = MaxHealth;
 	}
@@ -90,7 +90,7 @@ void ACorpsePartyPlayerController::SetHUDShield(float Shield, float MaxShield)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeShield = true;
 		HUDShield = Shield;
 		HUDMaxShield = MaxShield;
 	}
@@ -109,7 +109,7 @@ void ACorpsePartyPlayerController::SetHUDScore(float Score)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeScore = true;
 		HUDScore = Score;
 	}
 }
@@ -127,7 +127,7 @@ void ACorpsePartyPlayerController::SetHUDDefeats(int32 Defeats)
 	}
 	else
 	{
-		bInitializeCharacterOverlay = true;
+		bInitializeDefeats = true;
 		HUDDefeats = Defeats;
 	}
 }
@@ -194,6 +194,7 @@ void ACorpsePartyPlayerController::OnPossess(APawn* InPawn)
 	if (CorpsePartyCharacter)
 	{
 		SetHUDHealth(CorpsePartyCharacter->GetHealth(), CorpsePartyCharacter->GetMaxHealth());
+		SetHUDShield(CorpsePartyCharacter->GetShield(), CorpsePartyCharacter->GetMaxShield());
 	}
 }
 
@@ -242,7 +243,7 @@ void ACorpsePartyPlayerController::SetHUDAnnouncementCountdown(float CountdownTi
 	}
 }
 
-void ACorpsePartyPlayerController::SetHUDGrenades(int32 Grenades)
+	void ACorpsePartyPlayerController::SetHUDGrenades(int32 Grenades)
 {
 	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
 	bool bHUDValid = CorpsePartyHUD &&
@@ -255,6 +256,7 @@ void ACorpsePartyPlayerController::SetHUDGrenades(int32 Grenades)
 	}
 	else
 	{
+		bInitializeGrenades = true;
 		HUDGrenades = Grenades;
 	}
 }
@@ -291,15 +293,15 @@ void ACorpsePartyPlayerController::PollInit()
 			CharacterOverlay = CorpsePartyHUD->CharacterOverlay;
 			if (CharacterOverlay)
 			{
-				SetHUDHealth(HUDHealth, HUDMaxHealth);
-				SetHUDShield(HUDShield, HUDMaxShield);
-				SetHUDScore(HUDScore);
-				SetHUDDefeats(HUDDefeats);
+				if (bInitializeHealth) SetHUDHealth(HUDHealth, HUDMaxHealth);
+				if (bInitializeShield) SetHUDShield(HUDShield, HUDMaxShield);
+				if (bInitializeScore) SetHUDScore(HUDScore);
+				if (bInitializeDefeats) SetHUDDefeats(HUDDefeats);
 
 				ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(GetPawn());
 				if (CorpsePartyCharacter && CorpsePartyCharacter->GetCombat())
 				{
-					SetHUDGrenades(CorpsePartyCharacter->GetCombat()->GetGrenades());
+					if (bInitializeGrenades) SetHUDGrenades(CorpsePartyCharacter->GetCombat()->GetGrenades());
 				}
 			}
 		}
