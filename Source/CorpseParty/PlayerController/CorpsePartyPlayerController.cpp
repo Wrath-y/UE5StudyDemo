@@ -74,6 +74,28 @@ void ACorpsePartyPlayerController::SetHUDHealth(float Health, float MaxHealth)
 	}
 }
 
+void ACorpsePartyPlayerController::SetHUDShield(float Shield, float MaxShield)
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->ShieldBar &&
+		CorpsePartyHUD->CharacterOverlay->ShieldText;
+	if (bHUDValid)
+	{
+		const float ShieldPercent = Shield / MaxShield;
+		CorpsePartyHUD->CharacterOverlay->ShieldBar->SetPercent(ShieldPercent);
+		FString ShieldText = FString::Printf(TEXT("%d/%d"), FMath::CeilToInt(Shield), FMath::CeilToInt(MaxShield));
+		CorpsePartyHUD->CharacterOverlay->ShieldText->SetText(FText::FromString(ShieldText));
+	}
+	else
+	{
+		bInitializeCharacterOverlay = true;
+		HUDShield = Shield;
+		HUDMaxShield = MaxShield;
+	}
+}
+
 void ACorpsePartyPlayerController::SetHUDScore(float Score)
 {
 	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
@@ -270,6 +292,7 @@ void ACorpsePartyPlayerController::PollInit()
 			if (CharacterOverlay)
 			{
 				SetHUDHealth(HUDHealth, HUDMaxHealth);
+				SetHUDShield(HUDShield, HUDMaxShield);
 				SetHUDScore(HUDScore);
 				SetHUDDefeats(HUDDefeats);
 

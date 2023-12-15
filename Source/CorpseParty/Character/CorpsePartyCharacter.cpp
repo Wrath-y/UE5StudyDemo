@@ -77,6 +77,7 @@ void ACorpsePartyCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
 	UE_LOG(LogTemp, Warning, TEXT("GetLifetimeReplicatedProps"))
 	DOREPLIFETIME_CONDITION(ACorpsePartyCharacter, OverlappingWeapon, COND_OwnerOnly);
 	DOREPLIFETIME(ACorpsePartyCharacter, Health);
+	DOREPLIFETIME(ACorpsePartyCharacter, Shield);
 	DOREPLIFETIME(ACorpsePartyCharacter, bDisableGameplay);
 }
 
@@ -658,12 +659,30 @@ void ACorpsePartyCharacter::OnRep_Health(float LastHealth)
 	}
 }
 
+void ACorpsePartyCharacter::OnRep_Shield(float LastShield)
+{
+	UpdateHUDShield();
+	if (Shield < LastShield)
+	{
+		PlayHitReactMontage();
+	}
+}
+
 void ACorpsePartyCharacter::UpdateHUDHealth()
 {
 	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
 	if (CorpsePartyPlayerController)
 	{
 		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
+	}
+}
+
+void ACorpsePartyCharacter::UpdateHUDShield()
+{
+	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
+	if (CorpsePartyPlayerController)
+	{
+		CorpsePartyPlayerController->SetHUDShield(Shield, MaxShield);
 	}
 }
 
