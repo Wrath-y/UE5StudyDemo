@@ -164,7 +164,6 @@ void AWeapon::OnRep_Owner()
 {
 	Super::OnRep_Owner();
 
-	Super::OnRep_Owner();
 	if (Owner == nullptr)
 	{
 		CorpsePartyOwnerCharacter = nullptr;
@@ -172,7 +171,11 @@ void AWeapon::OnRep_Owner()
 	}
 	else
 	{
-		SetHUDAmmo();
+		CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(Owner) : CorpsePartyOwnerCharacter;
+		if (CorpsePartyOwnerCharacter && CorpsePartyOwnerCharacter->GetEquippedWeapon() && CorpsePartyOwnerCharacter->GetEquippedWeapon() == this)
+		{
+			SetHUDAmmo();
+		}
 	}
 }
 
