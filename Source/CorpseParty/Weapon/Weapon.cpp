@@ -171,6 +171,7 @@ void AWeapon::OnRep_Owner()
 	}
 	else
 	{
+		// TODO 会造成客户端HUD当前弹夹子弹为0的bug
 		CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(Owner) : CorpsePartyOwnerCharacter;
 		if (CorpsePartyOwnerCharacter && CorpsePartyOwnerCharacter->GetEquippedWeapon() && CorpsePartyOwnerCharacter->GetEquippedWeapon() == this)
 		{
