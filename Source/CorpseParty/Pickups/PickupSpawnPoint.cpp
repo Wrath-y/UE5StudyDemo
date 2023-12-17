@@ -6,7 +6,8 @@
 
 APickupSpawnPoint::APickupSpawnPoint()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	// 永远不会调用 TickComponent
+	PrimaryActorTick.bCanEverTick = false;
 	bReplicates = true;
 }
 

@@ -54,7 +54,6 @@ void AWeapon::BeginPlay()
 	// On Server
 	if (HasAuthority())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Weapon AreaSphere Set Callback"))
 		AreaSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		AreaSphere->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 		AreaSphere->OnComponentBeginOverlap.AddDynamic(this, &AWeapon::OnSphereOverlap);
@@ -139,6 +138,7 @@ void AWeapon::SetHUDAmmo()
 		CorpsePartyOwnerController = CorpsePartyOwnerController == nullptr ? Cast<ACorpsePartyPlayerController>(CorpsePartyOwnerCharacter->Controller) : CorpsePartyOwnerController;
 		if (CorpsePartyOwnerController)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("Will SetHUDWeaponAmmo %d %d"), Ammo, HasAuthority())
 			CorpsePartyOwnerController->SetHUDWeaponAmmo(Ammo);
 		}
 	}

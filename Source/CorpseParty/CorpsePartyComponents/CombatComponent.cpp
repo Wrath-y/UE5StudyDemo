@@ -167,6 +167,7 @@ void UCombatComponent::EquipWeapon(AWeapon* WeaponToEquip)
 	if (CombatState != ECombatState::ECS_Unoccupied) return;
 	
 	DropEquippedWeapon();
+	UE_LOG(LogTemp, Warning, TEXT("EquipWeapon %d"), Character->HasAuthority())
 	EquippedWeapon = WeaponToEquip;
 	EquippedWeapon->SetWeaponState(EWeaponState::EWS_Equipped);
 	AttachActorToRightHand(EquippedWeapon);

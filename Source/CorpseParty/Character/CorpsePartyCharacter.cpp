@@ -89,9 +89,17 @@ void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
 
 void ACorpsePartyCharacter::Elim()
 {
+	UE_LOG(LogTemp, Warning, TEXT("Elim"))
 	if (Combat && Combat->EquippedWeapon)
 	{
-		Combat->EquippedWeapon->Dropped();
+		if (Combat->EquippedWeapon->bDestroyWeapon)
+		{
+			Combat->EquippedWeapon->Destroy();
+		}
+		else
+		{
+			Combat->EquippedWeapon->Dropped();
+		}
 	}
 	MulticastElim();
 	GetWorldTimerManager().SetTimer(
@@ -106,6 +114,7 @@ void ACorpsePartyCharacter::MulticastElim_Implementation()
 {
 	if (CorpsePartyPlayerController)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("SetHUDWeaponAmmo(0)"))
 		CorpsePartyPlayerController->SetHUDWeaponAmmo(0);
 	}
 	bElimmed = true;
@@ -192,8 +201,9 @@ void ACorpsePartyCharacter::Destroyed()
 void ACorpsePartyCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	UE_LOG(LogTemp, Warning, TEXT("BeginPlay"))
+	
+	SpawnDefaultWeapon();
+	UpdateHUDAmmo();
 	UpdateHUDHealth();
 	UpdateHUDShield();
 	if (HasAuthority())
@@ -296,9 +306,7 @@ void ACorpsePartyCharacter::PlayReloadMontage()
 {
 	
 	if (Combat == nullptr || Combat->EquippedWeapon == nullptr) return;
-
-	UE_LOG(LogTemp, Warning, TEXT("Rifle"))
-
+	
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && ReloadMontage)
 	{
@@ -693,7 +701,6 @@ void ACorpsePartyCharacter::UpdateHUDHealth()
 	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
 	if (CorpsePartyPlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateHUDHealth %f"), Health)
 		CorpsePartyPlayerController->SetHUDHealth(Health, MaxHealth);
 	}
 }
@@ -703,8 +710,33 @@ void ACorpsePartyCharacter::UpdateHUDShield()
 	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
 	if (CorpsePartyPlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UpdateHUDShield %f"), Shield)
 		CorpsePartyPlayerController->SetHUDShield(Shield, MaxShield);
+	}
+}
+
+void ACorpsePartyCharacter::UpdateHUDAmmo()
+{
+	CorpsePartyPlayerController = CorpsePartyPlayerController == nullptr ? Cast<ACorpsePartyPlayerController>(Controller) : CorpsePartyPlayerController;
+	
+	if (CorpsePartyPlayerController && Combat && Combat->EquippedWeapon)
+	{
+		CorpsePartyPlayerController->SetHUDCarriedAmmo(Combat->CarriedAmmo);
+		CorpsePartyPlayerController->SetHUDWeaponAmmo(Combat->EquippedWeapon->GetAmmo());
+	}
+}
+
+void ACorpsePartyCharacter::SpawnDefaultWeapon()
+{
+	ACorpsePartyGameMode* CorpsePartyGameMode = Cast<ACorpsePartyGameMode>(UGameplayStatics::GetGameMode(this));
+	UWorld* World = GetWorld();
+	if (CorpsePartyGameMode && World && !bElimmed && DefaultWeaponClass)
+	{
+		AWeapon* StartingWeapon = World->SpawnActor<AWeapon>(DefaultWeaponClass);
+		StartingWeapon->bDestroyWeapon = true;
+		if (Combat)
+		{
+			Combat->EquipWeapon(StartingWeapon);
+		}
 	}
 }
 

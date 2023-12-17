@@ -43,6 +43,9 @@ public:
 	void UpdateHUDHealth();
 	void UpdateHUDShield();
 	
+	void UpdateHUDAmmo();
+	void SpawnDefaultWeapon();
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -219,6 +222,13 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* AttachedGrenade;
+
+	/** 
+	* Default weapon
+	*/
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> DefaultWeaponClass;
 	
 public:
 	// 与Weapon重叠时调用 只在server调用
