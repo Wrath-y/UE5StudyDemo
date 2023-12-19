@@ -205,6 +205,7 @@ void ACorpsePartyPlayerController::OnPossess(APawn* InPawn)
 	{
 		SetHUDHealth(CorpsePartyCharacter->GetHealth(), CorpsePartyCharacter->GetMaxHealth());
 		SetHUDShield(CorpsePartyCharacter->GetShield(), CorpsePartyCharacter->GetMaxShield());
+		CorpsePartyCharacter->UpdateHUDAmmo();
 	}
 }
 
