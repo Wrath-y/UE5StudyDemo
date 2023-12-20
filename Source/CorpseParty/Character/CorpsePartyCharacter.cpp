@@ -103,7 +103,6 @@ void ACorpsePartyCharacter::MulticastElim_Implementation()
 {
 	if (CorpsePartyPlayerController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SetHUDWeaponAmmo(0)"))
 		CorpsePartyPlayerController->SetHUDWeaponAmmo(0);
 	}
 	bElimmed = true;
@@ -420,7 +419,6 @@ void ACorpsePartyCharacter::ReceiveDamage(AActor* DamagedActor, float Damage, co
 
 	Health = FMath::Clamp(Health - DamageToHealth, 0.f, MaxHealth);
 
-	UE_LOG(LogTemp, Warning, TEXT("ReceiveDamage"))
 	UpdateHUDHealth();
 	UpdateHUDShield();
 	PlayHitReactMontage();
@@ -790,7 +788,6 @@ void ACorpsePartyCharacter::StartDissolve()
 
 void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 {
-	UE_LOG(LogTemp, Warning, TEXT("SetOverlappingWeapon"))
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(false);
@@ -807,7 +804,6 @@ void ACorpsePartyCharacter::SetOverlappingWeapon(AWeapon* Weapon)
 
 void ACorpsePartyCharacter::OnRep_OverlappingWeapon(AWeapon* LastWeapon)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnRep_OverlappingWeapon"))
 	if (OverlappingWeapon)
 	{
 		OverlappingWeapon->ShowPickupWidget(true);

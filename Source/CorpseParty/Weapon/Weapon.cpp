@@ -78,8 +78,6 @@ void AWeapon::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeP
 
 void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnSphereOverlap"))
-
 	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(OtherActor);
 	if (CorpsePartyCharacter)
 	{
@@ -89,8 +87,6 @@ void AWeapon::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnSphereEndOverlap"))
-	
 	ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(OtherActor);
 	if (CorpsePartyCharacter)
 	{
@@ -106,7 +102,6 @@ void AWeapon::SetHUDAmmo()
 		CorpsePartyOwnerController = CorpsePartyOwnerController == nullptr ? Cast<ACorpsePartyPlayerController>(CorpsePartyOwnerCharacter->Controller) : CorpsePartyOwnerController;
 		if (CorpsePartyOwnerController)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Will SetHUDWeaponAmmo %d %d"), Ammo, HasAuthority())
 			CorpsePartyOwnerController->SetHUDWeaponAmmo(Ammo);
 		}
 	}
@@ -256,7 +251,10 @@ void AWeapon::Fire(const FVector& HitTarget)
 			}
 		}
 	}
-	SpendRound();
+	if (HasAuthority())
+	{
+		SpendRound();
+	}
 }
 
 void AWeapon::Dropped()
