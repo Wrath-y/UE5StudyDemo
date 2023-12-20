@@ -15,6 +15,7 @@
 #include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
 #include "CorpseParty/Weapon/Weapon.h"
 #include "CorpseParty/GameState/CorpsePartyGameState.h"
+#include "Components/Image.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
@@ -39,6 +40,37 @@ void ACorpsePartyPlayerController::Tick(float DeltaTime)
 	SetHUDTime();
 	CheckTimeSync(DeltaTime);
 	PollInit();
+	CheckPing(DeltaTime);
+}
+
+void ACorpsePartyPlayerController::CheckPing(float DeltaTime)
+{
+	HighPingRunningTime += DeltaTime;
+	if (HighPingRunningTime > CheckPingFrequency)
+	{
+		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;
+		if (PlayerState)
+		{
+			if (PlayerState->GetCompressedPing() * 4 > HighPingThreshold)
+			{
+				HighPingWarning();
+				PingAnimationRunningTime = 0.f;
+			}
+		}
+		HighPingRunningTime = 0.f;
+	}
+	bool bHighPingAnimationPlaying =
+		CorpsePartyHUD && CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->HighPingAnimation &&
+		CorpsePartyHUD->CharacterOverlay->IsAnimationPlaying(CorpsePartyHUD->CharacterOverlay->HighPingAnimation);
+	if (bHighPingAnimationPlaying)
+	{
+		PingAnimationRunningTime += DeltaTime;
+		if (PingAnimationRunningTime > HighPingDuration)
+		{
+			StopHighPingWarning();
+		}
+	}
 }
 
 void ACorpsePartyPlayerController::CheckTimeSync(float DeltaTime)
@@ -168,6 +200,40 @@ void ACorpsePartyPlayerController::SetHUDCarriedAmmo(int32 Ammo)
 	}
 }
 
+
+void ACorpsePartyPlayerController::HighPingWarning()
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->HighPingImage &&
+		CorpsePartyHUD->CharacterOverlay->HighPingAnimation;
+	if (bHUDValid)
+	{
+		CorpsePartyHUD->CharacterOverlay->HighPingImage->SetOpacity(1.f);
+		CorpsePartyHUD->CharacterOverlay->PlayAnimation(
+			CorpsePartyHUD->CharacterOverlay->HighPingAnimation,
+			0.f,
+			5);
+	}
+}
+
+void ACorpsePartyPlayerController::StopHighPingWarning()
+{
+	CorpsePartyHUD = CorpsePartyHUD == nullptr ? Cast<ACorpsePartyHUD>(GetHUD()) : CorpsePartyHUD;
+	bool bHUDValid = CorpsePartyHUD &&
+		CorpsePartyHUD->CharacterOverlay &&
+		CorpsePartyHUD->CharacterOverlay->HighPingImage &&
+		CorpsePartyHUD->CharacterOverlay->HighPingAnimation;
+	if (bHUDValid)
+	{
+		CorpsePartyHUD->CharacterOverlay->HighPingImage->SetOpacity(0.f);
+		if (CorpsePartyHUD->CharacterOverlay->IsAnimationPlaying(CorpsePartyHUD->CharacterOverlay->HighPingAnimation))
+		{
+			CorpsePartyHUD->CharacterOverlay->StopAnimation(CorpsePartyHUD->CharacterOverlay->HighPingAnimation);
+		}
+	}
+}
 
 void ACorpsePartyPlayerController::ServerCheckMatchState_Implementation()
 {
