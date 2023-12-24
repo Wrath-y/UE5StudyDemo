@@ -842,3 +842,9 @@ ECombatState ACorpsePartyCharacter::GetCombatState() const
 	if (Combat == nullptr) return ECombatState::ECS_MAX;
 	return Combat->CombatState;
 }
+
+bool ACorpsePartyCharacter::IsLocallyReloading()
+{
+	if (Combat == nullptr) return false;
+	return Combat->bLocallyReloading;
+}
