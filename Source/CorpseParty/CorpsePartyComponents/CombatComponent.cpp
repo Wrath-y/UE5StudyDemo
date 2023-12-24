@@ -742,7 +742,6 @@ void UCombatComponent::OnRep_CombatState()
 
 void UCombatComponent::HandleReload()
 {
-	UE_LOG(LogTemp, Warning, TEXT("HandleReload"));
 	if (Character)
 	{
 		Character->PlayReloadMontage();
