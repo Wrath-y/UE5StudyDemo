@@ -55,6 +55,11 @@ private:
 
 	UPROPERTY()
 	class ACorpsePartyPlayerController* Controller;
+
+	TDoubleLinkedList<FFramePackage> FrameHistory;
+
+	UPROPERTY(EditAnywhere)
+	float MaxRecordTime = 2.f;
 	
 public:	
 
