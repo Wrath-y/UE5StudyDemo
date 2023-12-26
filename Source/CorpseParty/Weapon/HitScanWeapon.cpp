@@ -9,6 +9,8 @@
 #include "Sound/SoundCue.h"
 #include "WeaponTypes.h"
 #include "DrawDebugHelpers.h"
+#include "CorpseParty/CorpsePartyComponents/LagCompensationComponent.h"
+#include "CorpseParty/PlayerController/CorpsePartyPlayerController.h"
 
 void AHitScanWeapon::Fire(const FVector& HitTarget)
 {
@@ -28,15 +30,33 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 		WeaponTraceHit(Start, HitTarget, FireHit);
 
 		ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(FireHit.GetActor());
-		if (CorpsePartyCharacter && HasAuthority() && InstigatorController)
+		if (CorpsePartyCharacter && InstigatorController)
 		{
-			UGameplayStatics::ApplyDamage(
-				CorpsePartyCharacter,
-				Damage,
-				InstigatorController,
-				this,
-				UDamageType::StaticClass()
-			);
+			if (HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(
+					CorpsePartyCharacter,
+					Damage,
+					InstigatorController,
+					this,
+					UDamageType::StaticClass()
+				);
+			}
+			if (!HasAuthority() && bUseServerSideRewind)
+			{
+				CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(OwnerPawn) : CorpsePartyOwnerCharacter;
+				CorpsePartyOwnerController = CorpsePartyOwnerController == nullptr ? Cast<ACorpsePartyPlayerController>(InstigatorController) : CorpsePartyOwnerController;
+				if (CorpsePartyOwnerController && CorpsePartyOwnerCharacter && CorpsePartyOwnerCharacter->GetLagCompensation())
+				{
+					CorpsePartyOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
+						CorpsePartyCharacter,
+						Start,
+						HitTarget,
+						CorpsePartyOwnerController->GetServerTime() - CorpsePartyOwnerController->SingleTripTime,
+						this
+					);
+				}
+			}
 		}
 		if (ImpactParticles)
 		{
