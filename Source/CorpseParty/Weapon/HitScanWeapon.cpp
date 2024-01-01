@@ -46,7 +46,7 @@ void AHitScanWeapon::Fire(const FVector& HitTarget)
 			{
 				CorpsePartyOwnerCharacter = CorpsePartyOwnerCharacter == nullptr ? Cast<ACorpsePartyCharacter>(OwnerPawn) : CorpsePartyOwnerCharacter;
 				CorpsePartyOwnerController = CorpsePartyOwnerController == nullptr ? Cast<ACorpsePartyPlayerController>(InstigatorController) : CorpsePartyOwnerController;
-				if (CorpsePartyOwnerController && CorpsePartyOwnerCharacter && CorpsePartyOwnerCharacter->GetLagCompensation())
+				if (CorpsePartyOwnerController && CorpsePartyOwnerCharacter && CorpsePartyOwnerCharacter->GetLagCompensation() && CorpsePartyOwnerCharacter->IsLocallyControlled())
 				{
 					CorpsePartyOwnerCharacter->GetLagCompensation()->ServerScoreRequest(
 						CorpsePartyCharacter,
