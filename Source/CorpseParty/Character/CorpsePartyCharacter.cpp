@@ -127,16 +127,6 @@ ACorpsePartyCharacter::ACorpsePartyCharacter()
 	hand_r->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	HitCollisionBoxes.Add(FName("hand_r"), hand_r);
 
-	blanket = CreateDefaultSubobject<UBoxComponent>(TEXT("blanket"));
-	blanket->SetupAttachment(GetMesh(), FName("backpack"));
-	blanket->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitCollisionBoxes.Add(FName("blanket"), blanket);
-
-	backpack = CreateDefaultSubobject<UBoxComponent>(TEXT("backpack"));
-	backpack->SetupAttachment(GetMesh(), FName("backpack"));
-	backpack->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	HitCollisionBoxes.Add(FName("backpack"), backpack);
-
 	thigh_l = CreateDefaultSubobject<UBoxComponent>(TEXT("thigh_l"));
 	thigh_l->SetupAttachment(GetMesh(), FName("thigh_l"));
 	thigh_l->SetCollisionEnabled(ECollisionEnabled::NoCollision);

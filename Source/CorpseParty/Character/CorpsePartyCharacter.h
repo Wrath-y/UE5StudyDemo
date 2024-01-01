@@ -71,7 +71,7 @@ protected:
 	void FireButtonReleased();
 	void PlayHitReactMontage();
 	void GrenadeButtonPressed();
-	void DropOrDestroyWeapon(AWeapon* Weapon);
+	void DropOrDestroyWeapon(class AWeapon* Weapon);
 	void DropOrDestroyWeapons();
 
 	UFUNCTION()
@@ -116,12 +116,6 @@ protected:
 	UBoxComponent* hand_r;
 
 	UPROPERTY(EditAnywhere)
-	UBoxComponent* backpack;
-
-	UPROPERTY(EditAnywhere)
-	UBoxComponent* blanket;
-
-	UPROPERTY(EditAnywhere)
 	UBoxComponent* thigh_l;
 
 	UPROPERTY(EditAnywhere)
@@ -150,7 +144,7 @@ private:
 	class UWidgetComponent* OverheadWidget;
 
 	UPROPERTY(ReplicatedUsing=OnRep_OverlappingWeapon)
-	class AWeapon* OverlappingWeapon;
+	AWeapon* OverlappingWeapon;
 
 	// 复制变量时会自动调用 仅从server复制变量时才会被client调用
 	UFUNCTION()
