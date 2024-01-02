@@ -444,6 +444,10 @@ void ULagCompensationComponent::SaveFramePackage(FFramePackage& Package)
 		Package.Character = Character;
 		for (auto& BoxPair : Character->HitCollisionBoxes)
 		{
+			if (BoxPair.Value == nullptr)
+			{
+				continue;
+			}
 			FBoxInformation BoxInformation;
 			BoxInformation.Location = BoxPair.Value->GetComponentLocation();
 			BoxInformation.Rotation = BoxPair.Value->GetComponentRotation();
