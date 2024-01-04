@@ -50,7 +50,7 @@ void ACorpsePartyPlayerController::CheckPing(float DeltaTime)
 	{
 		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;
 		if (PlayerState)
-			UE_LOG(LogTemp, Warning, TEXT("PlayerState->GetPing() * 4 : %d"), PlayerState->GetCompressedPing() * 4);
+		{
 			if (PlayerState->GetCompressedPing() * 4 > HighPingThreshold)
 			{
 				HighPingWarning();
