@@ -13,7 +13,6 @@
 #include "CorpseParty/HUD/Announcement.h"
 #include "Kismet/GameplayStatics.h"
 #include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
-#include "CorpseParty/Weapon/Weapon.h"
 #include "CorpseParty/GameState/CorpsePartyGameState.h"
 #include "Components/Image.h"
 
@@ -45,16 +44,22 @@ void ACorpsePartyPlayerController::Tick(float DeltaTime)
 
 void ACorpsePartyPlayerController::CheckPing(float DeltaTime)
 {
+	if (HasAuthority()) return;
 	HighPingRunningTime += DeltaTime;
 	if (HighPingRunningTime > CheckPingFrequency)
 	{
 		PlayerState = PlayerState == nullptr ? GetPlayerState<APlayerState>() : PlayerState;
 		if (PlayerState)
-		{
+			UE_LOG(LogTemp, Warning, TEXT("PlayerState->GetPing() * 4 : %d"), PlayerState->GetCompressedPing() * 4);
 			if (PlayerState->GetCompressedPing() * 4 > HighPingThreshold)
 			{
 				HighPingWarning();
 				PingAnimationRunningTime = 0.f;
+				ServerReportPingStatus(true);
+			}
+			else
+			{
+				ServerReportPingStatus(false);
 			}
 		}
 		HighPingRunningTime = 0.f;
@@ -71,6 +76,12 @@ void ACorpsePartyPlayerController::CheckPing(float DeltaTime)
 			StopHighPingWarning();
 		}
 	}
+}
+
+// Is the ping too high?
+void ACorpsePartyPlayerController::ServerReportPingStatus_Implementation(bool bHighPing)
+{
+	HighPingDelegate.Broadcast(bHighPing);
 }
 
 void ACorpsePartyPlayerController::CheckTimeSync(float DeltaTime)
