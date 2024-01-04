@@ -108,6 +108,14 @@ public:
 		float HitTime,
 		class AWeapon* DamageCauser
 	);
+
+	UFUNCTION(Server, Reliable)
+	void ProjectileServerScoreRequest(
+		ACorpsePartyCharacter* HitCharacter,
+		const FVector_NetQuantize& TraceStart,
+		const FVector_NetQuantize100& InitialVelocity,
+		float HitTime
+	);
 	
 	UFUNCTION(Server, Reliable)
 	void ShotgunServerScoreRequest(

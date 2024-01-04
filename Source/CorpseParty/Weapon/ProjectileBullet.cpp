@@ -2,6 +2,10 @@
 
 
 #include "ProjectileBullet.h"
+
+#include "CorpseParty/Character/CorpsePartyCharacter.h"
+#include "CorpseParty/CorpsePartyComponents/LagCompensationComponent.h"
+#include "CorpseParty/PlayerController/CorpsePartyPlayerController.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -32,19 +36,33 @@ void AProjectileBullet::PostEditChangeProperty(FPropertyChangedEvent& Event)
 }
 #endif
 
-void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-                              FVector NormalImpulse, const FHitResult& Hit)
+void AProjectileBullet::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
-	ACharacter* OwnerCharacter = Cast<ACharacter>(GetOwner());
+	ACorpsePartyCharacter* OwnerCharacter = Cast<ACorpsePartyCharacter>(GetOwner());
 	if (OwnerCharacter)
 	{
-		AController* OwnerController = OwnerCharacter->Controller;
+		ACorpsePartyPlayerController* OwnerController = Cast<ACorpsePartyPlayerController>(OwnerCharacter->Controller);
 		if (OwnerController)
 		{
-			UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+			if (OwnerCharacter->HasAuthority() && !bUseServerSideRewind)
+			{
+				UGameplayStatics::ApplyDamage(OtherActor, Damage, OwnerController, this, UDamageType::StaticClass());
+				Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
+				return;
+			}
+			ACorpsePartyCharacter* HitCharacter = Cast<ACorpsePartyCharacter>(OtherActor);
+			if (bUseServerSideRewind && OwnerCharacter->GetLagCompensation() && OwnerCharacter->IsLocallyControlled() && HitCharacter)
+			{
+				OwnerCharacter->GetLagCompensation()->ProjectileServerScoreRequest(
+					HitCharacter,
+					TraceStart,
+					InitialVelocity,
+					OwnerController->GetServerTime() - OwnerController->SingleTripTime
+				);
+			}
 		}
 	}
-	
+
 	Super::OnHit(HitComp, OtherActor, OtherComp, NormalImpulse, Hit);
 }
 
