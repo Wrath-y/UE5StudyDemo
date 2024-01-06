@@ -83,7 +83,10 @@ void UCorpsePartyAnimInstance::NativeUpdateAnimation(float DeltaTime)
 	}
 
 	bUseFABRIK = CorpsePartyCharacter->GetCombatState() == ECombatState::ECS_Unoccupied;
-	if (CorpsePartyCharacter->IsLocallyControlled() && CorpsePartyCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade)
+	bool bFABRIKOverride = CorpsePartyCharacter->IsLocallyControlled() &&
+		CorpsePartyCharacter->GetCombatState() != ECombatState::ECS_ThrowingGrenade &&
+		CorpsePartyCharacter->bFinishedSwapping;
+	if (bFABRIKOverride)
 	{
 		bUseFABRIK = !CorpsePartyCharacter->IsLocallyReloading();
 	}
