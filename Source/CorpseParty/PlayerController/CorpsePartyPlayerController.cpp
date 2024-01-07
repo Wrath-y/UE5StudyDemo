@@ -15,6 +15,7 @@
 #include "CorpseParty/CorpsePartyComponents/CombatComponent.h"
 #include "CorpseParty/GameState/CorpsePartyGameState.h"
 #include "Components/Image.h"
+#include "CorpseParty/HUD/ReturnToMainMenu.h"
 
 void ACorpsePartyPlayerController::BeginPlay()
 {
@@ -74,6 +75,27 @@ void ACorpsePartyPlayerController::CheckPing(float DeltaTime)
 		if (PingAnimationRunningTime > HighPingDuration)
 		{
 			StopHighPingWarning();
+		}
+	}
+}
+
+void ACorpsePartyPlayerController::ShowReturnToMainMenu()
+{
+	if (ReturnToMainMenuWidget == nullptr) return;
+	if (ReturnToMainMenu == nullptr)
+	{
+		ReturnToMainMenu = CreateWidget<UReturnToMainMenu>(this, ReturnToMainMenuWidget);
+	}
+	if (ReturnToMainMenu)
+	{
+		bReturnToMainMenuOpen = !bReturnToMainMenuOpen;
+		if (bReturnToMainMenuOpen)
+		{
+			ReturnToMainMenu->MenuSetup();
+		}
+		else
+		{
+			ReturnToMainMenu->MenuTearDown();
 		}
 	}
 }
@@ -396,6 +418,15 @@ void ACorpsePartyPlayerController::PollInit()
 			}
 		}
 	}
+}
+
+void ACorpsePartyPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
+	if (InputComponent == nullptr) return;
+
+	InputComponent->BindAction("Quit", IE_Pressed, this, &ACorpsePartyPlayerController::ShowReturnToMainMenu);
+
 }
 
 void ACorpsePartyPlayerController::ServerRequestServerTime_Implementation(float TimeOfClientRequest)
