@@ -118,6 +118,15 @@ void ACorpsePartyGameMode::PlayerEliminated(ACorpsePartyCharacter* ElimmedCharac
 	{
 		ElimmedCharacter->Elim(false);
 	}
+
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		ACorpsePartyPlayerController* CorpsePartyPlayer = Cast<ACorpsePartyPlayerController>(*It);
+		if (CorpsePartyPlayer && AttackerPlayerState && VictimPlayerState)
+		{
+			CorpsePartyPlayer->BroadcastElim(AttackerPlayerState, VictimPlayerState);
+		}
+	}
 }
 
 void ACorpsePartyGameMode::RequestRespawn(ACharacter* ElimmedCharacter, AController* ElimmedController)
