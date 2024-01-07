@@ -171,20 +171,15 @@ void ACorpsePartyCharacter::OnRep_ReplicatedMovement()
 	TimeSinceLastMovementReplication = 0.f;
 }
 
-void ACorpsePartyCharacter::Elim()
+void ACorpsePartyCharacter::Elim(bool bPlayerLeftGame)
 {
 	DropOrDestroyWeapons();
-	MulticastElim();
-	GetWorldTimerManager().SetTimer(
-		ElimTimer,
-		this,
-		&ACorpsePartyCharacter::ElimTimerFinished,
-		ElimDelay
-	);
+	MulticastElim(bPlayerLeftGame);
 }
 
-void ACorpsePartyCharacter::MulticastElim_Implementation()
+void ACorpsePartyCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 {
+	bLeftGame = bPlayerLeftGame;
 	if (CorpsePartyPlayerController)
 	{
 		CorpsePartyPlayerController->SetHUDWeaponAmmo(0);
@@ -242,14 +237,34 @@ void ACorpsePartyCharacter::MulticastElim_Implementation()
 	{
 		ShowSniperScopeWidget(false);
 	}
+	GetWorldTimerManager().SetTimer(
+		ElimTimer,
+		this,
+		&ACorpsePartyCharacter::ElimTimerFinished,
+		ElimDelay
+	);
 }
 
 void ACorpsePartyCharacter::ElimTimerFinished()
 {
 	ACorpsePartyGameMode* CorpsePartyGameMode = GetWorld()->GetAuthGameMode<ACorpsePartyGameMode>();
-	if (CorpsePartyGameMode)
+	if (CorpsePartyGameMode && !bLeftGame)
 	{
 		CorpsePartyGameMode->RequestRespawn(this, Controller);
+	}
+	if (bLeftGame && IsLocallyControlled())
+	{
+		OnLeftGame.Broadcast();
+	}
+}
+
+void ACorpsePartyCharacter::ServerLeaveGame_Implementation()
+{
+	ACorpsePartyGameMode* CorpsePartyGameMode = GetWorld()->GetAuthGameMode<ACorpsePartyGameMode>();
+	CorpsePartyPlayerState = CorpsePartyPlayerState == nullptr ? GetPlayerState<ACorpsePartyPlayerState>() : CorpsePartyPlayerState;
+	if (CorpsePartyGameMode && CorpsePartyPlayerState)
+	{
+		CorpsePartyGameMode->PlayerLeftGame(CorpsePartyPlayerState);
 	}
 }
 

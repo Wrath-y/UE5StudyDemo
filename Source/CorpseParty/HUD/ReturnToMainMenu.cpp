@@ -5,6 +5,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/Button.h"
 #include "MultiplayerSessionsSubsystem.h"
+#include "CorpseParty/Character/CorpsePartyCharacter.h"
 #include "GameFramework/GameModeBase.h"
 
 void UReturnToMainMenu::MenuSetup()
@@ -105,8 +106,32 @@ void UReturnToMainMenu::ReturnButtonClicked()
 {
 	ReturnButton->SetIsEnabled(false);
 
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		APlayerController* FirstPlayerController = World->GetFirstPlayerController();
+		if (FirstPlayerController)
+		{
+			ACorpsePartyCharacter* CorpsePartyCharacter = Cast<ACorpsePartyCharacter>(FirstPlayerController->GetPawn());
+			if (CorpsePartyCharacter)
+			{
+				CorpsePartyCharacter->ServerLeaveGame();
+				CorpsePartyCharacter->OnLeftGame.AddDynamic(this, &UReturnToMainMenu::OnPlayerLeftGame);
+			}
+			else
+			{
+				ReturnButton->SetIsEnabled(true);
+			}
+		}
+	}
+}
+
+void UReturnToMainMenu::OnPlayerLeftGame()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnPlayerLeftGame()"))
 	if (MultiplayerSessionsSubsystem)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("MultiplayerSessionsSubsystem valid"))
 		MultiplayerSessionsSubsystem->DestroySession();
 	}
 }
