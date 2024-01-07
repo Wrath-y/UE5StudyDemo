@@ -23,6 +23,9 @@
 #include "Sound/SoundCue.h"
 #include "CorpseParty/PlayerState/CorpsePartyPlayerState.h"
 #include "CorpseParty/Weapon/WeaponTypes.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "CorpseParty/GameState/CorpsePartyGameState.h"
 
 class ACorpsePartyGameMode;
 
@@ -237,6 +240,10 @@ void ACorpsePartyCharacter::MulticastElim_Implementation(bool bPlayerLeftGame)
 	{
 		ShowSniperScopeWidget(false);
 	}
+	if (CrownComponent)
+	{
+		CrownComponent->DestroyComponent();
+	}
 	GetWorldTimerManager().SetTimer(
 		ElimTimer,
 		this,
@@ -310,6 +317,35 @@ void ACorpsePartyCharacter::Destroyed()
 	if (Combat && Combat->EquippedWeapon && bMatchNotInProgress)
 	{
 		Combat->EquippedWeapon->Destroy();
+	}
+}
+
+void ACorpsePartyCharacter::MulticastGainedTheLead_Implementation()
+{
+	if (CrownSystem == nullptr) return;
+	if (CrownComponent == nullptr)
+	{
+		CrownComponent = UNiagaraFunctionLibrary::SpawnSystemAttached(
+			CrownSystem,
+			GetCapsuleComponent(),
+			FName(),
+			GetActorLocation() + FVector(0.f, 0.f, 110.f),
+			GetActorRotation(),
+			EAttachLocation::KeepWorldPosition,
+			false
+		);
+	}
+	if (CrownComponent)
+	{
+		CrownComponent->Activate();
+	}
+}
+
+void ACorpsePartyCharacter::MulticastLostTheLead_Implementation()
+{
+	if (CrownComponent)
+	{
+		CrownComponent->DestroyComponent();
 	}
 }
 
@@ -891,6 +927,13 @@ void ACorpsePartyCharacter::PollInit()
 		{
 			CorpsePartyPlayerState->AddToScore(0.f);
 			CorpsePartyPlayerState->AddToDefeats(0);
+
+			ACorpsePartyGameState* CorpsePartyGameState = Cast<ACorpsePartyGameState>(UGameplayStatics::GetGameState(this));
+
+			if (CorpsePartyGameState && CorpsePartyGameState->TopScoringPlayers.Contains(CorpsePartyPlayerState))
+			{
+				MulticastGainedTheLead();
+			}
 		}
 	}
 }

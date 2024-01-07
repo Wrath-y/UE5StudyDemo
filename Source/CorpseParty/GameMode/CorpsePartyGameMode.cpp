@@ -81,8 +81,34 @@ void ACorpsePartyGameMode::PlayerEliminated(ACorpsePartyCharacter* ElimmedCharac
 
 	if (AttackerPlayerState && AttackerPlayerState != VictimPlayerState && CorpsePartyGameState)
 	{
+		TArray<ACorpsePartyPlayerState*> PlayersCurrentlyInTheLead;
+		for (auto LeadPlayer : CorpsePartyGameState->TopScoringPlayers)
+		{
+			PlayersCurrentlyInTheLead.Add(LeadPlayer);
+		}
+		
 		AttackerPlayerState->AddToScore(1.f);
 		CorpsePartyGameState->UpdateTopScore(AttackerPlayerState);
+		if (CorpsePartyGameState->TopScoringPlayers.Contains(AttackerPlayerState))
+		{
+			ACorpsePartyCharacter* Leader = Cast<ACorpsePartyCharacter>(AttackerPlayerState->GetPawn());
+			if (Leader)
+			{
+				Leader->MulticastGainedTheLead();
+			}
+		}
+
+		for (int32 i = 0; i < PlayersCurrentlyInTheLead.Num(); i++)
+		{
+			if (!CorpsePartyGameState->TopScoringPlayers.Contains(PlayersCurrentlyInTheLead[i]))
+			{
+				ACorpsePartyCharacter* Loser = Cast<ACorpsePartyCharacter>(PlayersCurrentlyInTheLead[i]->GetPawn());
+				if (Loser)
+				{
+					Loser->MulticastLostTheLead();
+				}
+			}
+		}
 	}
 	if (VictimPlayerState)
 	{
